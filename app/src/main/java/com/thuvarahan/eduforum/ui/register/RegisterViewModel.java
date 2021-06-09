@@ -56,7 +56,7 @@ public class RegisterViewModel extends ViewModel {
 
     // A placeholder display name validation check
     private boolean isDisplayNameValid(String displayName) {
-        return displayName != null;
+        return displayName != null && !displayName.trim().isEmpty();
     }
 
     // A placeholder username validation check

@@ -59,7 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
                     passwordEditText.setError(getString(registerFormState.getPasswordError()));
                 }
                 if (registerFormState.getConfirmPasswordError() != null) {
-                    confirmPasswordEditText.setError(getString(registerFormState.getPasswordError()));
+                    confirmPasswordEditText.setError(getString(registerFormState.getConfirmPasswordError()));
                 }
             }
         });
