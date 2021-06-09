@@ -193,7 +193,6 @@ public class PostActivity extends AppCompatActivity {
         .document(postID)
         .collection("replies")
         .whereEqualTo("canDisplay", true)
-        .orderBy("timestamp", Query.Direction.DESCENDING)
         .get()
         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

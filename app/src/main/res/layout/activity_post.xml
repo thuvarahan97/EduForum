@@ -223,6 +223,7 @@
                     android:hint="Write a reply..."
                     android:maxLines="5"
                     android:textSize="16sp"
+                    android:maxLength="500"
                     android:textAlignment="textStart"
                     android:gravity="top|start"
                     android:textColor="@color/black"

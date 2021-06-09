@@ -36,6 +36,8 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    public static final int OPEN_NEW_ACTIVITY = 123456;
+
     // data is passed into the constructor
     public RVPostsAdapter(List<Post> data) {
         this.mData = data;
