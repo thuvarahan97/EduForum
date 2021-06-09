@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.thuvarahan.eduforum">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <!--check network permissions-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!--check wifi state-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- check network permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- check wifi state -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <queries>
@@ -24,28 +20,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EduForum.Custom">
-        <meta-data
-            android:name="com.huawei.hms.client.channel.androidMarket"
-            android:value="false" />
         <activity
-            android:name=".NewPostActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:label="New Post"
-            />
+            android:name=".ui.register.RegisterActivity"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
         <activity
-            android:name=".PostActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:label=""
-            />
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:name=".ui.login.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.huawei.hms.client.channel.androidMarket"
+            android:value="false" />
+
+        <activity
+            android:name=".NewPostActivity"
+            android:label="New Post"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PostActivity"
+            android:label=""
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"></activity>
     </application>
 
 </manifest>
