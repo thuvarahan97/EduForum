@@ -15,10 +15,24 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs "en", "zh-rCN"
     }
 
+
+    signingConfigs {
+        config {
+            storeFile file('C:/Users/ASUS/Documents/EduForum.jks')
+            storePassword 'twrst18.'
+            keyPassword 'twrst18.'
+            keyAlias 'key_eduforum'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.config
+        }
         release {
+            signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -39,6 +53,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     implementation 'com.huawei.agconnect:agconnect-core:1.3.1.300'
+    implementation 'com.huawei.hms:hwid:5.3.0.302'
     implementation 'com.google.firebase:firebase-firestore:21.4.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
