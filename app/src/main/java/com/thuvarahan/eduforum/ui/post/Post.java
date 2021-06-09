@@ -31,12 +31,6 @@ public class Post implements Serializable {
 //        this.replies = replies;
     }
 
-    public String formatTimestamp(Date timestamp) {
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis(timestamp.getTime());
-        return DateFormat.format("dd MMM yyyy", cal).toString();
-    }
-
     /*public void fetchAuthor(FirebaseFirestore db) {
         db.document(authorRef).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override

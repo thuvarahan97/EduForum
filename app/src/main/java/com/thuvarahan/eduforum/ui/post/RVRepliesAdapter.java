@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.R;
 
 import java.util.Calendar;
@@ -83,9 +84,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         });
 
         //---------------- Convert Date Format ---------------//
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis(_reply.timestamp.getTime());
-        String date = DateFormat.format("dd MMM yyyy", cal).toString();
+        String date = CustomUtils.formatTimestamp(_reply.timestamp);
         holder.timestamp.setText(date);
 
     }

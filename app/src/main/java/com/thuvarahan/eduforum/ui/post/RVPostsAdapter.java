@@ -107,7 +107,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
 
 
         //---------------- Convert Date Format ---------------//
-        String date = _post.formatTimestamp(_post.timestamp);
+        String date = CustomUtils.formatTimestamp(_post.timestamp);
         holder.timestamp.setText(date);
 
         //----------------- Display Image ------------//
