@@ -35,6 +35,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.thuvarahan.eduforum.data.login.LoginDataSource;
+import com.thuvarahan.eduforum.data.login.LoginRepository;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +54,11 @@ public class NewPostActivity extends AppCompatActivity {
     ImageView image;
     AppCompatButton btnChoose;
     AppCompatButton btnAddPost;
+
+    TextView profileDisplayName;
+    TextView profileEmail;
+
+    String currentUserID = "";
 
     Menu postMenu;
 
@@ -81,6 +88,15 @@ public class NewPostActivity extends AppCompatActivity {
         image = findViewById(R.id.post_img);
         btnChoose = findViewById(R.id.choose_image_btn);
         btnAddPost = findViewById(R.id.add_post_btn);
+
+        profileDisplayName = findViewById(R.id.post_author_name);
+        profileEmail = findViewById(R.id.post_author_email);
+
+        LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
+        profileDisplayName.setText(loginRepository.getUser().getDisplayName());
+        profileEmail.setText(loginRepository.getUser().getUsername());
+
+        currentUserID = loginRepository.getUser().getUserID();
 
         btnChoose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,7 +213,7 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     void savePost(String imageUrl) {
-        DocumentReference author = db.collection("users").document("LgxX9SfYHkDX4zKWmJ9Q");
+        DocumentReference author = db.collection("users").document(currentUserID);
 
         Map<String, Object> post = new HashMap<>();
         post.put("postTitle", title.getText().toString());

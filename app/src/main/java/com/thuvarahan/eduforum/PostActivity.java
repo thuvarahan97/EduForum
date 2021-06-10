@@ -37,6 +37,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.R;
+import com.thuvarahan.eduforum.data.login.LoginDataSource;
+import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.ui.post.Post;
 import com.thuvarahan.eduforum.ui.post.RVRepliesAdapter;
 import com.thuvarahan.eduforum.ui.post.Reply;
@@ -73,6 +75,8 @@ public class PostActivity extends AppCompatActivity {
     private EditText etReplyBody;
     private AppCompatButton btnAddReply;
 
+    String currentUserID = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +96,9 @@ public class PostActivity extends AppCompatActivity {
         swipeRefresh = findViewById(R.id.swipe_refresh_2);
 
         Post _post = (Post) getIntent().getSerializableExtra("post");
+
+        LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
+        currentUserID = loginRepository.getUser().getUserID();
 
         if (_post != null) {
             postID = _post.id;
@@ -276,7 +283,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     void saveReply() {
-        DocumentReference author = db.collection("users").document("LgxX9SfYHkDX4zKWmJ9Q");
+        DocumentReference author = db.collection("users").document(currentUserID);
 
         Map<String, Object> reply = new HashMap<>();
         reply.put("replyBody", etReplyBody.getText().toString());
@@ -295,10 +302,13 @@ public class PostActivity extends AppCompatActivity {
             public void onSuccess(DocumentReference documentReference) {
                 Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
 
-                Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
+                /*Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
                 TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
                 toastMessage.setTextColor(Color.GREEN);
-                toast.show();
+                toast.show();*/
+
+                etReplyBody.getText().clear();
+                etReplyBody.clearFocus();
 
                 fetchReplies(getApplicationContext() ,db, postID);
             }
@@ -307,7 +317,7 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG, "Error adding document", e);
-                Snackbar snackbar = Snackbar.make(rootView,"Unable to save post! Try again.", Snackbar.LENGTH_LONG)
+                Snackbar snackbar = Snackbar.make(rootView,"Unable to add reply! Try again.", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
                     .setBackgroundTint(Color.RED)
                     .setTextColor(Color.WHITE);

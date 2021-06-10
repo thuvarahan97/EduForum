@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -26,13 +26,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.thuvarahan.eduforum.NewPostActivity;
-import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.ui.post.Post;
 import com.thuvarahan.eduforum.ui.post.RVPostsAdapter;
-import com.thuvarahan.eduforum.ui.post.Reply;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +40,8 @@ public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     RVPostsAdapter rvAdapter;
-
     SwipeRefreshLayout swipeRefresh;
+    TextView tvUnavailable;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -60,6 +57,8 @@ public class HomeFragment extends Fragment {
                 textView.setText(s);
             }
         });*/
+
+        tvUnavailable = root.findViewById(R.id.text_unavailable);
 
         FloatingActionButton fab = root.findViewById(R.id.newpost_fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +95,7 @@ public class HomeFragment extends Fragment {
                     QuerySnapshot result = task.getResult();
                     if (result == null || result.isEmpty()) {
                         stopRefreshing();
+                        toggleUnavailableText();
                         return;
                     }
 
@@ -117,7 +117,6 @@ public class HomeFragment extends Fragment {
                         Post post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
                         posts.add(post);
                         showRecyclerView();
-                        stopRefreshing();
                     }
                 } else {
                     Snackbar snackbar = Snackbar.make(getView(),"Unable to retrieve posts! Try again.", Snackbar.LENGTH_LONG).setAction("Action", null);
@@ -125,21 +124,23 @@ public class HomeFragment extends Fragment {
                     /*Toast toast = Toast.makeText(context, "Unable to retrieve posts! Try again.", Toast.LENGTH_SHORT);
                     toast.show();*/
                     Log.w(TAG, "Error getting documents.", task.getException());
-                    stopRefreshing();
                 }
+                stopRefreshing();
+                toggleUnavailableText();
             }
         });
-
     }
 
     void showRecyclerView() {
         ArrayList<Post> allposts = this.posts;
 
-        // set up the RecyclerView
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_posts_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvAdapter = new RVPostsAdapter(allposts);
-        recyclerView.setAdapter(rvAdapter);
+        if (allposts.size() > 0) {
+            // set up the RecyclerView
+            RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_posts_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            rvAdapter = new RVPostsAdapter(allposts);
+            recyclerView.setAdapter(rvAdapter);
+        }
     }
 
     void stopRefreshing() {
@@ -152,5 +153,13 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         fetchData(getContext(), db);
         super.onResume();
+    }
+
+    private void toggleUnavailableText() {
+        if (posts.size() == 0) {
+            tvUnavailable.setVisibility(View.VISIBLE);
+        } else {
+            tvUnavailable.setVisibility(View.GONE);
+        }
     }
 }

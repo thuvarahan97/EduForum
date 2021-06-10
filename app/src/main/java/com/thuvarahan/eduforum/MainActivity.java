@@ -1,17 +1,26 @@
 package com.thuvarahan.eduforum;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
+import com.thuvarahan.eduforum.data.user.User;
+import com.thuvarahan.eduforum.ui.login.LoginActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,8 +31,23 @@ public class MainActivity extends AppCompatActivity {
 
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
 
-        if (loginRepository.isLoggedIn()) {
-            Toast.makeText(getApplicationContext(), "sdfsf", Toast.LENGTH_LONG).show();
+        HashMap<String, Object> userData = CustomUtils.getLocalUserData(getApplicationContext());
+        if (userData != null && userData.containsKey("userID") && !userData.get("userID").toString().isEmpty()) {
+            String userID = userData.get("userID").toString();
+            String displayName = userData.get("displayName").toString();
+            String username = userData.get("username").toString();
+            Date dateCreated = new Date();
+            try {
+                dateCreated = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).parse(userData.get("dateCreated").toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            User currentUser = new User(userID, displayName, username, dateCreated);
+            loginRepository.setLoggedInUser(currentUser);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         BottomNavigationView navView = findViewById(R.id.nav_view);

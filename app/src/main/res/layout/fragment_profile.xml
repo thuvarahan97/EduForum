@@ -10,7 +10,8 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -28,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="15dp"
-                android:background="@drawable/page_gradient"
+                android:background="@drawable/gray_gradient"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +69,7 @@
                         android:id="@+id/profile_header_displayname"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Unknown"
+                        android:text=""
                         android:textColor="@color/black"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -85,7 +86,7 @@
                         android:id="@+id/profile_header_email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="user@gmail.com"
+                        android:text=""
                         android:textColor="@color/light_gray"
                         android:textSize="14sp"
                         android:textAlignment="center"

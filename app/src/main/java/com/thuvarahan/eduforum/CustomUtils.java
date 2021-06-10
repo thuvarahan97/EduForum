@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -38,5 +39,20 @@ public class CustomUtils {
         editor.putString("username", username);
         editor.putString("dateCreated", dateCreated);
         editor.apply();
+    }
+
+    public static HashMap<String, Object> getLocalUserData(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE);
+        HashMap<String, Object> userData = new HashMap<>();
+        userData.put("userID", sharedPreferences.getString("userID", ""));
+        userData.put("displayName", sharedPreferences.getString("displayName", ""));
+        userData.put("username", sharedPreferences.getString("username", ""));
+        userData.put("dateCreated", sharedPreferences.getString("dateCreated", ""));
+        return userData;
+    }
+
+    public static void clearLocalUserData(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE);
+        sharedPreferences.edit().clear().apply();
     }
 }
