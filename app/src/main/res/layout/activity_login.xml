@@ -9,24 +9,46 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@drawable/page_gradient"
     tools:context=".ui.login.LoginActivity">
 
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/design_default_color_primary_dark"
+        android:textColor="@color/design_default_color_primary"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="96dp"
+        android:layout_marginEnd="24dp"
+        android:paddingHorizontal="2dp"
+        android:text="@string/welcome_to_eduforum"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvWelcome2"
+        />
+
+    <TextView
+        android:id="@+id/tvWelcome2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_gray"
         android:textSize="25sp"
         android:textStyle="bold"
         android:gravity="center"
+        android:textAlignment="center"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:paddingHorizontal="2dp"
         android:text="@string/sign_in_welcome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcome"
         app:layout_constraintBottom_toTopOf="@id/username"
         />
 
@@ -45,7 +67,7 @@
         android:background="@drawable/border_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvWelcome" />
+        app:layout_constraintTop_toBottomOf="@id/tvWelcome2" />
 
     <EditText
         android:id="@+id/password"

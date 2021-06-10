@@ -61,22 +61,15 @@ public class RegisterViewModel extends ViewModel {
 
     // A placeholder username validation check
     private boolean isUserNameValid(String username) {
-        if (username == null) {
-            return false;
-        }
-        if (username.contains("@")) {
-            return Patterns.EMAIL_ADDRESS.matcher(username).matches();
-        } else {
-            return !username.trim().isEmpty();
-        }
+        return username != null && !username.trim().isEmpty() && Patterns.EMAIL_ADDRESS.matcher(username).matches();
     }
 
     // A placeholder password validation check
     private boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() > 5;
+        return password != null && !password.trim().isEmpty() && password.trim().length() > 5;
     }
 
-    // A placeholder password validation check
+    // A placeholder confirm password validation check
     private boolean isConfirmPasswordValid(String password, String confirmPassword) {
         return confirmPassword != null && confirmPassword.equals(password);
     }
