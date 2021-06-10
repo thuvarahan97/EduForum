@@ -45,4 +45,30 @@ public class Result<T> {
             return this.error;
         }
     }
+
+    // Error sub-class
+    public final static class Invalid extends Result {
+        private Exception error;
+
+        public Invalid(Exception error) {
+            this.error = error;
+        }
+
+        public Exception getError() {
+            return this.error;
+        }
+    }
+
+    // Error sub-class
+    public final static class NotVerified extends Result {
+        private Exception error;
+
+        public NotVerified(Exception error) {
+            this.error = error;
+        }
+
+        public Exception getError() {
+            return this.error;
+        }
+    }
 }

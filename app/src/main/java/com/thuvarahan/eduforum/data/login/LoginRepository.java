@@ -1,6 +1,8 @@
 package com.thuvarahan.eduforum.data.login;
 
 import com.thuvarahan.eduforum.data.login.model.LoggedInUser;
+import com.thuvarahan.eduforum.data.user.User;
+import com.thuvarahan.eduforum.interfaces.ILoginUserTask;
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -14,7 +16,7 @@ public class LoginRepository {
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-    private LoggedInUser user = null;
+    private User user = null;
 
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource) {
@@ -37,18 +39,22 @@ public class LoginRepository {
         dataSource.logout();
     }
 
-    private void setLoggedInUser(LoggedInUser user) {
+    private void setLoggedInUser(User user) {
         this.user = user;
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
     }
 
-    public Result<LoggedInUser> login(String username, String password) {
+    public void login(String username, String password, ILoginUserTask userTask) {
         // handle login
-        Result<LoggedInUser> result = dataSource.login(username, password);
-        if (result instanceof Result.Success) {
-            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
-        }
-        return result;
+        dataSource.login(username, password, new ILoginUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    setLoggedInUser(((Result.Success<User>) result).getData());
+                }
+                userTask.onReturn(result);
+            }
+        });
     }
 }

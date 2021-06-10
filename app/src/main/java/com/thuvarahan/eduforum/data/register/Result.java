@@ -33,6 +33,19 @@ public class Result<T> {
         }
     }
 
+    // Failure sub-class
+    public final static class Failure extends Result {
+        private Exception error;
+
+        public Failure(Exception error) {
+            this.error = error;
+        }
+
+        public Exception getError() {
+            return this.error;
+        }
+    }
+
     @Override
     public String toString() {
         if (this instanceof Result.Success) {

@@ -14,8 +14,8 @@
     <string name="invalid_username">Not a valid email address</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="invalid_confirm_password">Password mismatch</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="register_failed">"Register failed"</string>
+    <string name="login_failed">"Login failed!"</string>
+    <string name="register_failed">"Register failed!"</string>
     <string name="sign_in_welcome">Sign in to continue!</string>
     <string name="register_welcome">Register to get started!</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
@@ -27,4 +27,9 @@
     <string name="prompt_confirm_password">Confirm Password</string>
     <string name="welcome_to_eduforum">Welcome to EduForum</string>
     <string name="create_account">Create Account</string>
+    <string name="successfully_registered">Successfully registered!\nCheck your email to verify your account.</string>
+    <string name="register_duplicate_failed">A user with same email address already exists!</string>
+    <string name="login_not_verified">Account is not verified yet. \nPlease check the link sent to your email.</string>
+    <string name="login_invalid_credentials">Invalid email address or password!</string>
+    <string name="logout">Logout</string>
 </resources>

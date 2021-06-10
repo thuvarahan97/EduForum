@@ -25,6 +25,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.MainActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.ui.register.RegisterActivity;
 
@@ -70,14 +72,22 @@ public class LoginActivity extends AppCompatActivity {
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
+
+                    setResult(Activity.RESULT_OK);
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
-                }
-                setResult(Activity.RESULT_OK);
 
-                //Complete and destroy login activity once successful
-                finish();
+                    setResult(Activity.RESULT_OK);
+
+                    // Go to Main Activity
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+
+                    //Complete and destroy login activity once successful
+                    finish();
+                }
+
             }
         });
 
@@ -105,8 +115,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                    /*loginViewModel.login(usernameEditText.getText().toString(),
+                            passwordEditText.getText().toString());*/
+                    return true;
                 }
                 return false;
             }
@@ -131,13 +142,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // TODO : initiate successful logged in experience
+        CustomUtils.saveLocalUserData(getApplicationContext(), model.getUserID(), model.getDisplayName(), model.getUsername(), model.getDateCreated());
+        String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
     @Override

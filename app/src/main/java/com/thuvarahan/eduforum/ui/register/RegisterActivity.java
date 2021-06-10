@@ -72,15 +72,19 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (registerResult.getError() != null) {
-                    showLoginFailed(registerResult.getError());
+                    showRegisterError(registerResult.getError());
+
+                    setResult(Activity.RESULT_OK);
+                    return;
                 }
                 if (registerResult.getSuccess() != null) {
                     updateUiWithUser(registerResult.getSuccess());
-                }
-                setResult(Activity.RESULT_OK);
 
-                //Complete and destroy login activity once successful
-                finish();
+                    setResult(Activity.RESULT_OK);
+
+                    //Complete and destroy login activity once successful
+                    finish();
+                }
             }
         });
 
@@ -101,19 +105,21 @@ public class RegisterActivity extends AppCompatActivity {
                         passwordEditText.getText().toString(), confirmPasswordEditText.getText().toString());
             }
         };
+        displayNameEditText.addTextChangedListener(afterTextChangedListener);
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
+        confirmPasswordEditText.addTextChangedListener(afterTextChangedListener);
+        confirmPasswordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    registerViewModel.register(
+                    /*registerViewModel.register(
                         displayNameEditText.getText().toString(),
                         usernameEditText.getText().toString(),
                         passwordEditText.getText().toString(),
                         confirmPasswordEditText.getText().toString()
-                    );
+                    );*/
+                    return true;
                 }
                 return false;
             }
@@ -141,13 +147,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(RegisteredUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // TODO : initiate successful logged in experience
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+        String successMsg = getString(R.string.successfully_registered);
+        Toast toast = Toast.makeText(getApplicationContext(), successMsg, Toast.LENGTH_LONG);
+        toast.show();
     }
 
-    private void showLoginFailed(@StringRes Integer errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+    private void showRegisterError(@StringRes Integer errorString) {
+        Toast toast = Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     @Override

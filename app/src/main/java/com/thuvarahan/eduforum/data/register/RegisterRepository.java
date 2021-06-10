@@ -1,6 +1,8 @@
 package com.thuvarahan.eduforum.data.register;
 
 import com.thuvarahan.eduforum.data.register.model.RegisteredUser;
+import com.thuvarahan.eduforum.data.user.User;
+import com.thuvarahan.eduforum.interfaces.IRegisterUserTask;
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -14,7 +16,7 @@ public class RegisterRepository {
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-    private RegisteredUser user = null;
+    private User user = null;
 
     // private constructor : singleton access
     private RegisterRepository(RegisterDataSource dataSource) {
@@ -28,27 +30,22 @@ public class RegisterRepository {
         return instance;
     }
 
-    public boolean isLoggedIn() {
-        return user != null;
-    }
-
-    public void logout() {
-        user = null;
-        dataSource.logout();
-    }
-
-    private void setLoggedInUser(RegisteredUser user) {
+    private void setRegisteredUser(User user) {
         this.user = user;
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
     }
 
-    public Result<RegisteredUser> register(String displayName, String username, String password, String confirmPassword) {
-        // handle login
-        Result<RegisteredUser> result = dataSource.register(displayName, username, password, confirmPassword);
-        if (result instanceof Result.Success) {
-            setLoggedInUser(((Result.Success<RegisteredUser>) result).getData());
-        }
-        return result;
+    public void register(String displayName, String username, String password, String confirmPassword, IRegisterUserTask userTask) {
+        // handle register
+        dataSource.register(displayName, username, password, confirmPassword, new IRegisterUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    setRegisteredUser(((Result.Success<User>) result).getData());
+                }
+                userTask.onReturn(result);
+            }
+        });
     }
 }

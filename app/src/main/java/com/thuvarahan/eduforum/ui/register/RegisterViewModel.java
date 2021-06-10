@@ -9,6 +9,8 @@ import com.thuvarahan.eduforum.data.register.RegisterRepository;
 import com.thuvarahan.eduforum.data.register.Result;
 import com.thuvarahan.eduforum.data.register.model.RegisteredUser;
 import com.thuvarahan.eduforum.R;
+import com.thuvarahan.eduforum.data.user.User;
+import com.thuvarahan.eduforum.interfaces.IRegisterUserTask;
 
 public class RegisterViewModel extends ViewModel {
 
@@ -30,14 +32,19 @@ public class RegisterViewModel extends ViewModel {
 
     public void register(String displayName, String username, String password, String confirmPassword) {
         // can be launched in a separate asynchronous job
-        Result<RegisteredUser> result = registerRepository.register(displayName, username, password, confirmPassword);
-
-        if (result instanceof Result.Success) {
-            RegisteredUser data = ((Result.Success<RegisteredUser>) result).getData();
-            registerResult.setValue(new RegisterResult(new RegisteredUserView(data.getDisplayName())));
-        } else {
-            registerResult.setValue(new RegisterResult(R.string.register_failed));
-        }
+        registerRepository.register(displayName, username, password, confirmPassword, new IRegisterUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    User data = ((Result.Success<User>) result).getData();
+                    registerResult.setValue(new RegisterResult(new RegisteredUserView(data.getDisplayName())));
+                } else if (result instanceof Result.Failure) {
+                    registerResult.setValue(new RegisterResult(R.string.register_duplicate_failed));
+                } else {
+                    registerResult.setValue(new RegisterResult(R.string.register_failed));
+                }
+            }
+        });
     }
 
     public void registerDataChanged(String displayName, String username, String password, String confirmPassword) {
