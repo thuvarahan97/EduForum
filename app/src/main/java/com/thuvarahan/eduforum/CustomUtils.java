@@ -1,9 +1,15 @@
 package com.thuvarahan.eduforum;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateFormat;
+import android.widget.Button;
+
+import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -54,5 +60,37 @@ public class CustomUtils {
     public static void clearLocalUserData(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
+    }
+
+    public static void showAlertDialog(Context context, String title, String message, String yesOption, String noOption, IAlertDialogTask alertDialogTask) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        //Yes button clicked
+                        alertDialogTask.onPressedYes(dialog);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        alertDialogTask.onPressedNo(dialog);
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialog);
+        builder
+//        .setTitle(title)
+        .setMessage(message).setPositiveButton(yesOption, dialogClickListener)
+        .setNegativeButton(noOption, dialogClickListener)
+        .setCancelable(false)
+        .show();
+
+        /*AlertDialog dialog = builder.create();
+        Button btnNegative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+        btnNegative.setTextColor(Color.BLACK);
+        dialog.show();*/
     }
 }

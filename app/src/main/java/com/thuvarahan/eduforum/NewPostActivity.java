@@ -213,6 +213,10 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     void savePost(String imageUrl) {
+        final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialogSpinnerOnly);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         DocumentReference author = db.collection("users").document(currentUserID);
 
         Map<String, Object> post = new HashMap<>();
@@ -237,9 +241,11 @@ public class NewPostActivity extends AppCompatActivity {
             public void onSuccess(DocumentReference documentReference) {
                 Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
 
-                Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
+                progressDialog.dismiss();
+
+                Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.question_add_success), Toast.LENGTH_LONG);
                 TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
-                toastMessage.setTextColor(Color.GREEN);
+//                toastMessage.setTextColor(Color.GREEN);
                 toast.show();
 
                 onBackPressed();
@@ -249,8 +255,10 @@ public class NewPostActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG, "Error adding document", e);
-                Snackbar snackbar = Snackbar.make(rootView,"Unable to save post! Try again.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
+
+                progressDialog.dismiss();
+
+                Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                         .setBackgroundTint(Color.RED)
                         .setTextColor(Color.WHITE);
                 /*View snackbarView = snackbar.getView();
@@ -275,11 +283,12 @@ public class NewPostActivity extends AppCompatActivity {
 
     void uploadImage() {
         if(filePath != null) {
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading...");
+            final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
+            progressDialog.setTitle("Uploading Image...");
+            progressDialog.setCancelable(false);
             progressDialog.show();
 
-            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+            StorageReference ref = storageReference.child("post_images/"+ UUID.randomUUID().toString());
             ref.putFile(filePath)
             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -290,7 +299,7 @@ public class NewPostActivity extends AppCompatActivity {
                         public void onSuccess(Uri uri) {
                             String imageUrl = uri.toString();
                             savePost(imageUrl);
-                            Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -299,7 +308,13 @@ public class NewPostActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.RED)
+                    .setTextColor(Color.WHITE)
+                    .show();
+
+//                    Toast.makeText(getApplicationContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             })
             .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -307,7 +322,7 @@ public class NewPostActivity extends AppCompatActivity {
                 public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                             .getTotalByteCount());
-                    progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                    progressDialog.setMessage((int)progress + "%" + " uploaded");
                 }
             });
         }

@@ -35,7 +35,7 @@
 
         <activity
             android:name=".NewPostActivity"
-            android:label="New Post"
+            android:label="New Question"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PostActivity"

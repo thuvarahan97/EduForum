@@ -1,8 +1,10 @@
 package com.thuvarahan.eduforum.ui.posts_replies;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -29,7 +33,12 @@ import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.data.login.LoginDataSource;
+import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,13 +48,16 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
 
     private List<Post> mData;
 
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String currentUserID = "";
 
-    public static final int OPEN_NEW_ACTIVITY = 123456;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     // data is passed into the constructor
     public RVPostsAdapter(List<Post> data) {
         this.mData = data;
+
+        LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
+        currentUserID = loginRepository.getUser().getUserID();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -74,6 +86,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
     }
 
     /// Create new views (invoked by the layout manager)
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
@@ -86,7 +99,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Post _post = mData.get(position);
+        Post _post = getItem(position);
         holder.title.setText(_post.title);
         holder.body.setText(_post.body);
 
@@ -147,19 +160,19 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                 if (task.isSuccessful()) {
                     QuerySnapshot result = task.getResult();
                     if (result == null || result.isEmpty()) {
-                        holder.replies_count.setText("0" + " replies");
+                        holder.replies_count.setText("0" + holder.replies_count.getContext().getResources().getString(R.string.answers));
                         return;
                     }
 
                     if (result.size() == 1) {
-                        holder.replies_count.setText("1" + " reply");
+                        holder.replies_count.setText("1" + holder.replies_count.getContext().getResources().getString(R.string.answer));
                     }
                     else {
-                        holder.replies_count.setText(result.size() + " replies");
+                        holder.replies_count.setText(result.size() + holder.replies_count.getContext().getResources().getString(R.string.answers));
                     }
                 }
                 else {
-                    holder.replies_count.setText("0" + " replies");
+                    holder.replies_count.setText("0" + holder.replies_count.getContext().getResources().getString(R.string.answers));
                 }
             }
         });
@@ -177,7 +190,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         holder.btnOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPostOptionsBottomSheetDialog(view.getContext());
+                showPostOptionsBottomSheetDialog(view.getContext(), _post, position);
             }
         });
     }
@@ -193,7 +206,13 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         return mData.get(id);
     }
 
-    void showPostOptionsBottomSheetDialog(Context context) {
+    public void removeItemAt(int position) {
+        mData.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mData.size());
+    }
+
+    void showPostOptionsBottomSheetDialog(Context context, Post post, int position) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         bottomSheetDialog.setContentView(R.layout.post_options_bottom_sheet_dialog);
 
@@ -201,14 +220,19 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         LinearLayout delete = bottomSheetDialog.findViewById(R.id.post_option_delete);
         LinearLayout copyLink = bottomSheetDialog.findViewById(R.id.post_option_copy_link);
 
-        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                // Instructions on bottomSheetDialog Dismiss
-            }
-        });
+        DocumentReference postAuthorRef = db.document(post.authorRef);
 
         assert edit != null;
+        assert delete != null;
+
+        if (currentUserID.equals(postAuthorRef.getId())) {
+            edit.setVisibility(View.VISIBLE);
+            delete.setVisibility(View.VISIBLE);
+        } else {
+            edit.setVisibility(View.GONE);
+            delete.setVisibility(View.GONE);
+        }
+
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,12 +241,51 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             }
         });
 
-        assert delete != null;
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "Share is Clicked", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
                 bottomSheetDialog.dismiss();
+
+                CustomUtils.showAlertDialog(context,
+                    context.getResources().getString(R.string.delete_question_alert_title),
+                    context.getResources().getString(R.string.delete_question_alert_message),
+                    context.getResources().getString(R.string.delete_question_alert_yes),
+                    context.getResources().getString(R.string.no),
+                    new IAlertDialogTask() {
+
+                    @Override
+                    public void onPressedYes(DialogInterface alertDialog) {
+                        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+
+                        db.collection("posts").document(post.id)
+                        .update("canDisplay", false)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    removeItemAt(position);
+                                    Snackbar.make(view, context.getResources().getString(R.string.question_deleted), Snackbar.LENGTH_LONG)
+                                    .show();
+                                } else {
+                                    Snackbar.make(view, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                                }
+                                progressDialog.dismiss();
+                            }
+                        });
+                        alertDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onPressedNo(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+
             }
         });
 

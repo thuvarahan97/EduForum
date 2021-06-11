@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUiWithUser(LoggedInUserView model) {
         CustomUtils.saveLocalUserData(getApplicationContext(), model.getUserID(), model.getDisplayName(), model.getUsername(), model.getDateCreated());
-        String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
+        String welcome = getString(R.string.welcome) + " " + model.getDisplayName() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 

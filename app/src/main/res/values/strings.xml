@@ -9,7 +9,7 @@
     <string name="prompt_password">Password</string>
     <string name="action_register">Register</string>
     <string name="action_sign_in">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="welcome">"Welcome"</string>
     <string name="invalid_display_name">Display name should not be empty</string>
     <string name="invalid_username">Not a valid email address</string>
     <string name="invalid_password">Password must be >5 characters</string>
@@ -36,4 +36,14 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="copy_link">Copy link</string>
+    <string name="question_deleted">The question has been deleted.</string>
+    <string name="question_not_deleted">Unable to delete this question at the moment.</string>
+    <string name="delete_question_alert_title">Delete question?</string>
+    <string name="delete_question_alert_message">Are you sure you want to delete this question?</string>
+    <string name="delete_question_alert_yes">Yes, Delete</string>
+    <string name="no">No</string>
+    <string name="question_add_success">Successfully added question!</string>
+    <string name="question_add_failure">Unable to add question! Try again.</string>
+    <string name="answers">" answers"</string>
+    <string name="answer">" answer"</string>
 </resources>

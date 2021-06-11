@@ -16,6 +16,8 @@ import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.reply.Reply;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.ViewHolder> {
@@ -45,6 +47,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
     }
 
     /// Create new views (invoked by the layout manager)
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
@@ -57,7 +60,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Reply _reply = mData.get(position);
+        Reply _reply = getItem(position);
         holder.body.setText(_reply.body);
         holder.author.setText("");
 
