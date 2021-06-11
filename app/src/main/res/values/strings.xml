@@ -32,4 +32,8 @@
     <string name="login_not_verified">Account is not verified yet. \nPlease check the link sent to your email.</string>
     <string name="login_invalid_credentials">Invalid email address or password!</string>
     <string name="logout">Logout</string>
+    <string name="horizontal_ellipsize">⋯</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="copy_link">Copy link</string>
 </resources>

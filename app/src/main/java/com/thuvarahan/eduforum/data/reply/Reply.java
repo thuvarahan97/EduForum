@@ -1,4 +1,4 @@
-package com.thuvarahan.eduforum.ui.post;
+package com.thuvarahan.eduforum.data.reply;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;

@@ -115,6 +115,8 @@
         android:hint="@string/prompt_confirm_password"
         android:inputType="textPassword"
         android:imeOptions="actionDone"
+        android:imeActionLabel="Done"
+        android:singleLine="true"
         android:selectAllOnFocus="true"
         android:padding="10dp"
         android:textColor="@color/black"

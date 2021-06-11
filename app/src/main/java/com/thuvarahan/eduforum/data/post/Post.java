@@ -1,4 +1,4 @@
-package com.thuvarahan.eduforum.ui.post;
+package com.thuvarahan.eduforum.data.post;
 
 import android.text.format.DateFormat;
 

@@ -1,6 +1,5 @@
-package com.thuvarahan.eduforum.ui.post;
+package com.thuvarahan.eduforum.ui.posts_replies;
 
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.R;
+import com.thuvarahan.eduforum.data.reply.Reply;
 
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.ViewHolder> {
 

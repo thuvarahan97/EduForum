@@ -32,8 +32,8 @@ import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.ui.login.LoginActivity;
-import com.thuvarahan.eduforum.ui.post.Post;
-import com.thuvarahan.eduforum.ui.post.RVPostsAdapter;
+import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.ui.posts_replies.RVPostsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

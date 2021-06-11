@@ -1,14 +1,18 @@
-package com.thuvarahan.eduforum.ui.post;
+package com.thuvarahan.eduforum.ui.posts_replies;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
@@ -16,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -24,8 +29,8 @@ import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.data.post.Post;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -51,6 +56,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         private final TextView replies_count;
         private final ImageView image;
         private final AppCompatButton view_btn;
+        private Button btnOptions;
 
         public ViewHolder(View view) {
             super(view);
@@ -63,6 +69,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             replies_count = (TextView) view.findViewById(R.id.post_replies_count);
             image = (ImageView) view.findViewById(R.id.post_img);
             view_btn = (AppCompatButton) view.findViewById(R.id.post_view_btn);
+            btnOptions = (Button) view.findViewById(R.id.post_options);
         }
     }
 
@@ -166,6 +173,13 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                 view.getContext().startActivity(intent);
             }
         });
+
+        holder.btnOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPostOptionsBottomSheetDialog(view.getContext());
+            }
+        });
     }
 
     // total number of rows
@@ -177,6 +191,79 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
     // convenience method for getting data at click position
     Post getItem(int id) {
         return mData.get(id);
+    }
+
+    void showPostOptionsBottomSheetDialog(Context context) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(R.layout.post_options_bottom_sheet_dialog);
+
+        LinearLayout edit = bottomSheetDialog.findViewById(R.id.post_option_edit);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.post_option_delete);
+        LinearLayout copyLink = bottomSheetDialog.findViewById(R.id.post_option_copy_link);
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                // Instructions on bottomSheetDialog Dismiss
+            }
+        });
+
+        assert edit != null;
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        assert delete != null;
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Share is Clicked", Toast.LENGTH_LONG).show();
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        assert copyLink != null;
+        copyLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Upload is Clicked", Toast.LENGTH_LONG).show();
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    void showPostOptionsPopupMenu(Context context, Button btnOptions) {
+        //creating a popup menu
+        PopupMenu popup = new PopupMenu(context, btnOptions);
+        //inflating menu from xml resource
+        popup.inflate(R.menu.post_options_menu);
+        //adding click listener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.post_option_edit:
+                        //handle menu1 click
+                        return true;
+                    case R.id.post_option_delete:
+                        //handle menu2 click
+                        return true;
+                    case R.id.post_option_copy_link:
+                        //handle menu3 click
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        //displaying the popup
+        popup.show();
     }
 
 }

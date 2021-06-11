@@ -109,21 +109,21 @@ public class RegisterActivity extends AppCompatActivity {
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         confirmPasswordEditText.addTextChangedListener(afterTextChangedListener);
-        confirmPasswordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        /*confirmPasswordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    /*registerViewModel.register(
+                    *//*registerViewModel.register(
                         displayNameEditText.getText().toString(),
                         usernameEditText.getText().toString(),
                         passwordEditText.getText().toString(),
                         confirmPasswordEditText.getText().toString()
-                    );*/
+                    );*//*
                     return true;
                 }
                 return false;
             }
-        });
+        });*/
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
