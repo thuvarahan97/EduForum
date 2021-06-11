@@ -281,8 +281,8 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                     }
 
                     @Override
-                    public void onPressedNo(DialogInterface dialog) {
-                        dialog.dismiss();
+                    public void onPressedNo(DialogInterface alertDialog) {
+                        alertDialog.dismiss();
                     }
                 });
 
