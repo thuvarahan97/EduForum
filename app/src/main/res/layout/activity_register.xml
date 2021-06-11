@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:background="@drawable/page_gradient"
+    android:background="@drawable/bg_login_gradient"
     tools:context=".ui.register.RegisterActivity">
 
     <TextView
@@ -65,7 +65,7 @@
         android:selectAllOnFocus="true"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:background="@drawable/border_box"
+        android:background="@drawable/bg_single_post"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvWelcome2" />
@@ -83,7 +83,7 @@
         android:selectAllOnFocus="true"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:background="@drawable/border_box"
+        android:background="@drawable/bg_single_post"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/display_name" />
@@ -100,7 +100,7 @@
         android:selectAllOnFocus="true"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:background="@drawable/border_box"
+        android:background="@drawable/bg_single_post"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username" />
@@ -120,7 +120,7 @@
         android:selectAllOnFocus="true"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:background="@drawable/border_box"
+        android:background="@drawable/bg_single_post"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password" />
@@ -136,7 +136,7 @@
         android:layout_marginBottom="64dp"
         android:enabled="false"
         android:text="@string/action_register"
-        android:background="@drawable/button_post"
+        android:background="@drawable/bg_button_post"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
