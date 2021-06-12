@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -18,8 +20,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -39,6 +44,7 @@ import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
 import com.thuvarahan.eduforum.data.reply.Reply;
 
@@ -57,8 +63,6 @@ public class PostActivity extends AppCompatActivity {
 
     View rootView;
 
-    SwipeRefreshLayout swipeRefresh;
-
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     ArrayList<Reply> replies = new ArrayList<Reply>();
@@ -73,6 +77,8 @@ public class PostActivity extends AppCompatActivity {
     private TextView replies_count;
     private EditText etReplyBody;
     private AppCompatButton btnAddReply;
+    private Button btnOptions;
+    SwipeRefreshLayout swipeRefresh;
 
     String currentUserID = "";
 
@@ -92,7 +98,8 @@ public class PostActivity extends AppCompatActivity {
         replies_count = (TextView) findViewById(R.id.post_replies_count);
         etReplyBody = (EditText) findViewById(R.id.add_reply_body);
         btnAddReply = (AppCompatButton) findViewById(R.id.add_reply_btn);
-        swipeRefresh = findViewById(R.id.swipe_refresh_2);
+        btnOptions = (Button) findViewById(R.id.post_options);
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_2);
 
         Post _post = (Post) getIntent().getSerializableExtra("post");
 
@@ -184,9 +191,25 @@ public class PostActivity extends AppCompatActivity {
                     saveReply();
                 }
             });
+
+            //---------------- Enable/Disable options --------------//
+            if (currentUserID.equals(db.document(_post.authorRef).getId())) {
+                btnOptions.setEnabled(true);
+                btnOptions.setVisibility(View.VISIBLE);
+            } else {
+                btnOptions.setEnabled(false);
+                btnOptions.setVisibility(View.GONE);
+            }
+
+            btnOptions.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showPostOptionsBottomSheetDialog(getApplicationContext(), _post);
+                }
+            });
         }
         else {
-            onBackPressed();
+            finish();
         }
     }
 
@@ -328,5 +351,82 @@ public class PostActivity extends AppCompatActivity {
         if (swipeRefresh.isRefreshing()) {
             swipeRefresh.setRefreshing(false);
         }
+    }
+
+    void showPostOptionsBottomSheetDialog(Context context, Post post) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(R.layout.post_options_bottom_sheet_dialog);
+
+        LinearLayout edit = bottomSheetDialog.findViewById(R.id.post_option_edit);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.post_option_delete);
+
+        DocumentReference postAuthorRef = db.document(post.authorRef);
+
+        assert edit != null;
+        assert delete != null;
+
+        if (currentUserID.equals(postAuthorRef.getId())) {
+//            edit.setVisibility(View.VISIBLE);
+            delete.setVisibility(View.VISIBLE);
+        } else {
+//            edit.setVisibility(View.GONE);
+            delete.setVisibility(View.GONE);
+        }
+
+        /*edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
+                bottomSheetDialog.dismiss();
+            }
+        });*/
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottomSheetDialog.dismiss();
+
+                CustomUtils.showAlertDialog(context,
+                    context.getResources().getString(R.string.delete_question_alert_title),
+                    context.getResources().getString(R.string.delete_question_alert_message),
+                    context.getResources().getString(R.string.delete_question_alert_yes),
+                    context.getResources().getString(R.string.no),
+                    new IAlertDialogTask() {
+
+                    @Override
+                    public void onPressedYes(DialogInterface alertDialog) {
+                        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+
+                        db.collection("posts").document(post.id)
+                        .update("canDisplay", false)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(context, context.getResources().getString(R.string.question_deleted), Toast.LENGTH_LONG).show();
+                                    finish();
+                                } else {
+                                    Snackbar.make(view, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                                }
+                                progressDialog.dismiss();
+                            }
+                        });
+                        alertDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onPressedNo(DialogInterface alertDialog) {
+                        alertDialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        bottomSheetDialog.show();
     }
 }

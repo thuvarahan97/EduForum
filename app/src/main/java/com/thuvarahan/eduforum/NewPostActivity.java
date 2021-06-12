@@ -358,15 +358,19 @@ public class NewPostActivity extends AppCompatActivity {
         if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK){
                 String imagePath = data.getExtras().getString("imagePath");
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
-                    image.setImageBitmap(bitmap);
-                    image.setVisibility(View.VISIBLE);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                if (imagePath != null) {
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
+                        image.setImageBitmap(bitmap);
+                        image.setVisibility(View.VISIBLE);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+                    }
+                } else {
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
                 }
-            } else {
+            } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
             }
         }

@@ -166,13 +166,13 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
             delete.setVisibility(View.GONE);
         }
 
-        edit.setOnClickListener(new View.OnClickListener() {
+        /*edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
                 bottomSheetDialog.dismiss();
             }
-        });
+        });*/
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override

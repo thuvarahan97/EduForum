@@ -21,6 +21,7 @@ import com.thuvarahan.eduforum.data.post.Post;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ImageActivity extends AppCompatActivity {
@@ -36,6 +37,7 @@ public class ImageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         cropLayoutView = findViewById(R.id.cropImageView);
         btnCrop = findViewById(R.id.btnCrop);
@@ -132,12 +134,21 @@ public class ImageActivity extends AppCompatActivity {
             image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
             fo.write(bytes.toByteArray());
-            // remember close file output
             fo.close();
         } catch (Exception e) {
             e.printStackTrace();
             fileName = null;
         }
         return fileName;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
