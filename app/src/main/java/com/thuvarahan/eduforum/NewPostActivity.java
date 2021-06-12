@@ -43,6 +43,7 @@ import com.thuvarahan.eduforum.ui.ImageActivity;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -249,8 +250,6 @@ public class NewPostActivity extends AppCompatActivity {
                 progressDialog.dismiss();
 
                 Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.question_add_success), Toast.LENGTH_LONG);
-                TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
-//                toastMessage.setTextColor(Color.GREEN);
                 toast.show();
 
                 onBackPressed();
@@ -264,10 +263,8 @@ public class NewPostActivity extends AppCompatActivity {
                 progressDialog.dismiss();
 
                 Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
-                        .setBackgroundTint(Color.RED)
-                        .setTextColor(Color.WHITE);
-                /*View snackbarView = snackbar.getView();
-                snackbarView.setBackgroundColor(Color.GREEN);*/
+                    .setBackgroundTint(Color.RED)
+                    .setTextColor(Color.WHITE);
                 snackbar.show();
             }
         });
@@ -281,8 +278,8 @@ public class NewPostActivity extends AppCompatActivity {
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityIfNeeded(
             Intent.createChooser(
-                intent,
-                "Select Image from here..."),
+            intent,
+            "Select Image from here..."),
             PICK_IMAGE_REQUEST);
     }
 
@@ -298,13 +295,23 @@ public class NewPostActivity extends AppCompatActivity {
             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    progressDialog.dismiss();
-                    taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
+                            progressDialog.dismiss();
                             String imageUrl = uri.toString();
                             savePost(imageUrl);
-//                            Toast.makeText(getApplicationContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                            .setBackgroundTint(Color.RED)
+                            .setTextColor(Color.WHITE)
+                            .show();
                         }
                     });
                 }
@@ -313,13 +320,10 @@ public class NewPostActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     progressDialog.dismiss();
-
                     Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                     .setBackgroundTint(Color.RED)
                     .setTextColor(Color.WHITE)
                     .show();
-
-//                    Toast.makeText(getApplicationContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             })
             .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -338,59 +342,34 @@ public class NewPostActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // checking request code and result code
-        // if request code is PICK_IMAGE_REQUEST and
-        // resultCode is RESULT_OK
-        // then set image in the image view
-        if (requestCode == PICK_IMAGE_REQUEST
-            && resultCode == RESULT_OK
-            && data != null
-            && data.getData() != null) {
-
-            // Get the Uri of data
-            filePath = data.getData();
-            try {
-                // Setting image on image view using Bitmap
-                Bitmap bitmap = MediaStore
-                    .Images
-                    .Media
-                    .getBitmap(
-                        getContentResolver(),
-                        filePath
-                    );
-//                image.setImageBitmap(bitmap);
-//                image.setVisibility(View.VISIBLE);
-
-                //Convert to byte array
-                /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 15, stream);
-                byte[] byteArray = stream.toByteArray();*/
-
-                // Start ImageActivity
+        //--------------- Choose Image Result --------------//
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                //filePath = data.getData();
                 Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
-//                intent.putExtra("image", byteArray);
                 intent.putExtra("imagePath", filePath.toString());
                 startActivityIfNeeded(intent, IMAGE_ACTIVITY_REQUEST_CODE);
-
-                /*Toast toast = Toast.makeText(getApplicationContext(), "Image added!", Toast.LENGTH_LONG);
-                toast.show();*/
-            }
-
-            catch (IOException e) {
-                // Log the exception
-                e.printStackTrace();
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
             }
         }
 
-        if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE
-            && resultCode == RESULT_OK
-            && data != null
-            && data.getData() != null) {
-            byte[] resultByteArray = data.getByteArrayExtra("image");
-            Bitmap bitmap = BitmapFactory.decodeByteArray(resultByteArray, 0, resultByteArray.length);
-
-            image.setImageBitmap(bitmap);
-            image.setVisibility(View.VISIBLE);
+        //--------------- Image Crop Activity Result --------------//
+        if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK){
+                String imagePath = data.getExtras().getString("imagePath");
+                try {
+                    filePath = Uri.parse(imagePath);
+                    Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
+                    image.setImageBitmap(bitmap);
+                    image.setVisibility(View.VISIBLE);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

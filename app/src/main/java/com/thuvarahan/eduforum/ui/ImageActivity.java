@@ -2,6 +2,7 @@ package com.thuvarahan.eduforum.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,13 +12,16 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.huawei.hms.image.vision.crop.CropLayoutView;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.post.Post;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 public class ImageActivity extends AppCompatActivity {
 
@@ -58,6 +62,9 @@ public class ImageActivity extends AppCompatActivity {
             cropLayoutView.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+            Intent cancelledIntent = new Intent();
+            setResult(RESULT_CANCELED, cancelledIntent);
             finish();
         }
 
@@ -93,15 +100,15 @@ public class ImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Bitmap croppedImage = cropLayoutView.getCroppedImage();
-
                 Bitmap resizedImage = getResizedBitmap(croppedImage);
+                String outputImagePath = createImageFromBitmap(resizedImage);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                resizedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
-                byte[] outputByteArray = stream.toByteArray();
+                /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                resizedImage.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+                byte[] outputByteArray = stream.toByteArray();*/
 
                 Intent output = new Intent();
-                output.putExtra("image", outputByteArray);
+                output.putExtra("imagePath", outputImagePath);
                 setResult(RESULT_OK, output);
                 finish();
             }
@@ -123,5 +130,21 @@ public class ImageActivity extends AppCompatActivity {
             width = (int) (height * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    public String createImageFromBitmap(Bitmap image) {
+        String fileName = "temp_img";
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
+            fo.write(bytes.toByteArray());
+            // remember close file output
+            fo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileName = null;
+        }
+        return fileName;
     }
 }
