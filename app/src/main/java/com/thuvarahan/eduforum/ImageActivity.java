@@ -1,4 +1,4 @@
-package com.thuvarahan.eduforum.ui;
+package com.thuvarahan.eduforum;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -44,9 +44,6 @@ public class ImageActivity extends AppCompatActivity {
         btnRotateClockwise = findViewById(R.id.btnRotateClockwise);
 //        btnRotateAntiClockwise = findViewById(R.id.btnRotateAntiClockwise);
 
-        /*byte[] inputByteArray = getIntent().getByteArrayExtra("image");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(inputByteArray, 0, inputByteArray.length);*/
-
         Bundle bundle = getIntent().getExtras();
         Uri filePath = Uri.parse(bundle.getString("imagePath"));
 
@@ -62,7 +59,7 @@ public class ImageActivity extends AppCompatActivity {
             cropLayoutView.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
             Intent cancelledIntent = new Intent();
             setResult(RESULT_CANCELED, cancelledIntent);
             finish();
@@ -102,10 +99,6 @@ public class ImageActivity extends AppCompatActivity {
                 Bitmap croppedImage = cropLayoutView.getCroppedImage();
                 Bitmap resizedImage = getResizedBitmap(croppedImage);
                 String outputImagePath = createImageFromBitmap(resizedImage);
-
-                /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                resizedImage.compress(Bitmap.CompressFormat.JPEG, 5, stream);
-                byte[] outputByteArray = stream.toByteArray();*/
 
                 Intent output = new Intent();
                 output.putExtra("imagePath", outputImagePath);

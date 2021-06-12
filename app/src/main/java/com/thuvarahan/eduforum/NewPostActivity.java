@@ -10,14 +10,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -38,13 +37,11 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
-import com.thuvarahan.eduforum.ui.ImageActivity;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -284,14 +281,19 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     void uploadImage() {
-        if(filePath != null) {
+        if(image.getDrawable() != null) {
             final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
             progressDialog.setTitle("Uploading Image...");
             progressDialog.setCancelable(false);
             progressDialog.show();
 
-            StorageReference ref = storageReference.child("post_images/"+ UUID.randomUUID().toString());
-            ref.putFile(filePath)
+            Bitmap imageBitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference ref = storageReference.child("post_images/" + UUID.randomUUID().toString() + ".jpg");
+            ref.putBytes(imageData)
             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -329,8 +331,7 @@ public class NewPostActivity extends AppCompatActivity {
             .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-                            .getTotalByteCount());
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
                     progressDialog.setMessage((int)progress + "%" + " uploaded");
                 }
             });
@@ -345,12 +346,11 @@ public class NewPostActivity extends AppCompatActivity {
         //--------------- Choose Image Result --------------//
         if (requestCode == PICK_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                //filePath = data.getData();
                 Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
-                intent.putExtra("imagePath", filePath.toString());
+                intent.putExtra("imagePath", data.getData().toString());
                 startActivityIfNeeded(intent, IMAGE_ACTIVITY_REQUEST_CODE);
             } else {
-                Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -359,16 +359,15 @@ public class NewPostActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK){
                 String imagePath = data.getExtras().getString("imagePath");
                 try {
-                    filePath = Uri.parse(imagePath);
                     Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
                     image.setImageBitmap(bitmap);
                     image.setVisibility(View.VISIBLE);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
                 }
             } else {
-                Toast.makeText(getApplicationContext(), "Failed to load the image", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
             }
         }
     }

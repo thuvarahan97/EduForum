@@ -24,7 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EduForum.Custom">
         <activity
-            android:name=".ui.ImageActivity"
+            android:name=".ImageActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.register.RegisterActivity"

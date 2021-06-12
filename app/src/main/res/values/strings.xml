@@ -59,4 +59,5 @@
     <string name="flip_vertically">Flip Vertically</string>
     <string name="flip_horizontally">Flip Horizontally</string>
     <string name="crop_image">Crop Image</string>
+    <string name="failed_to_load_image">Failed to load the image</string>
 </resources>
