@@ -159,10 +159,10 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         assert delete != null;
 
         if (currentUserID.equals(replyAuthorRef.getId())) {
-            edit.setVisibility(View.VISIBLE);
+//            edit.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
         } else {
-            edit.setVisibility(View.GONE);
+//            edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
 

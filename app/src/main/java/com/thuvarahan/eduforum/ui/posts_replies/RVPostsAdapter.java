@@ -240,10 +240,10 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         assert copyLink != null;
 
         if (currentUserID.equals(postAuthorRef.getId())) {
-            edit.setVisibility(View.VISIBLE);
+//            edit.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
         } else {
-            edit.setVisibility(View.GONE);
+//            edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
 
