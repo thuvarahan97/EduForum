@@ -1,14 +1,18 @@
 package com.thuvarahan.eduforum;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.format.DateFormat;
 import android.widget.Button;
 
+import com.huawei.agconnect.applinking.AppLinking;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
 import java.io.InputStream;
@@ -92,5 +96,36 @@ public class CustomUtils {
         Button btnNegative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         btnNegative.setTextColor(Color.BLACK);
         dialog.show();*/
+    }
+
+    /*public static Uri getAppLink() {
+        AppLinking.Builder builder = AppLinking.newBuilder()
+            .setUriPrefix("https://eduforum.dra.agconnect.link")
+            .setDeepLink(Uri.parse("https://eduforum-app.firebaseapp.com/question"))
+            .setAndroidLinkInfo(AppLinking.AndroidLinkInfo.newBuilder()
+                    .setAndroidDeepLink("agckit://eduforum-app.firebaseapp.com/question")
+                    .build())
+            .setSocialCardInfo(AppLinking.SocialCardInfo.newBuilder()
+                    .setTitle("Title")
+                    .setImageUrl("https://example.com/1.png")
+                    .setDescription("Description").build())
+            .setCampaignInfo(AppLinking.CampaignInfo.newBuilder()
+                    .setName("name")
+                    .setSource("AGC")
+                    .setMedium("App")
+                    .build())
+            .setPreviewType(AppLinking.LinkingPreviewType.AppInfo);
+        *//*builder.buildShortAppLinking().addOnSuccessListener(shortAppLinking -> {
+            Uri shortLinkUri = shortAppLinking.getShortUrl();
+        }).addOnFailureListener(e -> {
+            //AppLinkingException
+        });*//*
+        return builder.buildAppLinking().getUri();
+    }*/
+
+    public static void copyTextToClipboard(Context context, String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Copied Text", text);
+        clipboard.setPrimaryClip(clip);
     }
 }

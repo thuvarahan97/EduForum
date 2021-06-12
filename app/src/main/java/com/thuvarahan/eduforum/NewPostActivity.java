@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,9 +38,11 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
+import com.thuvarahan.eduforum.ui.ImageActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,11 +72,13 @@ public class NewPostActivity extends AppCompatActivity {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
 
+
     // Uri indicates, where the image will be picked from
     private Uri filePath;
 
     // request code
     private final int PICK_IMAGE_REQUEST = 22;
+    private final int IMAGE_ACTIVITY_REQUEST_CODE = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,17 +356,41 @@ public class NewPostActivity extends AppCompatActivity {
                     .Media
                     .getBitmap(
                         getContentResolver(),
-                        filePath);
-                image.setImageBitmap(bitmap);
-                image.setVisibility(View.VISIBLE);
-                Toast toast = Toast.makeText(getApplicationContext(), "Image added!", Toast.LENGTH_LONG);
-                toast.show();
+                        filePath
+                    );
+//                image.setImageBitmap(bitmap);
+//                image.setVisibility(View.VISIBLE);
+
+                //Convert to byte array
+                /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 15, stream);
+                byte[] byteArray = stream.toByteArray();*/
+
+                // Start ImageActivity
+                Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+//                intent.putExtra("image", byteArray);
+                intent.putExtra("imagePath", filePath.toString());
+                startActivityIfNeeded(intent, IMAGE_ACTIVITY_REQUEST_CODE);
+
+                /*Toast toast = Toast.makeText(getApplicationContext(), "Image added!", Toast.LENGTH_LONG);
+                toast.show();*/
             }
 
             catch (IOException e) {
                 // Log the exception
                 e.printStackTrace();
             }
+        }
+
+        if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE
+            && resultCode == RESULT_OK
+            && data != null
+            && data.getData() != null) {
+            byte[] resultByteArray = data.getByteArrayExtra("image");
+            Bitmap bitmap = BitmapFactory.decodeByteArray(resultByteArray, 0, resultByteArray.length);
+
+            image.setImageBitmap(bitmap);
+            image.setVisibility(View.VISIBLE);
         }
     }
 

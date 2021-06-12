@@ -54,4 +54,9 @@
     <string name="answers">" answers"</string>
     <string name="answer">" answer"</string>
     <string name="unknown_author">Unknown</string>
+    <string name="rotate_anti_clockwise">Rotate Anti-Clockwise</string>
+    <string name="rotate_clockwise">Rotate Clockwise</string>
+    <string name="flip_vertically">Flip Vertically</string>
+    <string name="flip_horizontally">Flip Horizontally</string>
+    <string name="crop_image">Crop Image</string>
 </resources>

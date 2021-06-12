@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -189,6 +190,15 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             }
         });
 
+        //---------------- Enable/Disable options --------------//
+        if (currentUserID.equals(db.document(_post.authorRef).getId())) {
+            holder.btnOptions.setEnabled(true);
+            holder.btnOptions.setVisibility(View.VISIBLE);
+        } else {
+            holder.btnOptions.setEnabled(false);
+            holder.btnOptions.setVisibility(View.GONE);
+        }
+
         //---------------- Clicking Options ------------------//
         holder.btnOptions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -293,13 +303,16 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             }
         });
 
-        copyLink.setOnClickListener(new View.OnClickListener() {
+        /*copyLink.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "Upload is Clicked", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
+                Uri link = CustomUtils.getAppLink();
+                link = Uri.parse("https://eduforum.dra.agconnect.link/aQn");
+                CustomUtils.copyTextToClipboard(view.getContext(), link.toString());
+                Toast.makeText(context, link.getPath(), Toast.LENGTH_LONG).show();
                 bottomSheetDialog.dismiss();
             }
-        });
+        });*/
 
         bottomSheetDialog.show();
     }

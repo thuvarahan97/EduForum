@@ -66,6 +66,7 @@
         android:id="@+id/post_option_copy_link"
         android:background="?android:attr/selectableItemBackground"
         android:padding="8dp"
+        android:visibility="gone"
         android:clickable="true"
         android:focusable="true">
 

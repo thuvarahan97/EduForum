@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.ImageActivity">
+
+    <LinearLayout
+        android:id="@+id/imageHolder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/imageTools"
+        >
+
+        <com.huawei.hms.image.vision.crop.CropLayoutView
+            android:id="@+id/cropImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="400dp"
+            app:cropScaleType="fitCenter"
+            android:layout_gravity="center"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/imageTools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="2dp"
+        android:paddingBottom="2dp"
+        android:paddingTop="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageHolder"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <!--<LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_marginBottom="15dp"
+            android:padding="1dp"
+            >
+
+            <LinearLayout
+                android:id="@+id/btnRotateAntiClockwise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:padding="1dp"
+                    app:srcCompat="@drawable/ic_rotate_left"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_anti_clockwise"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnRotateClockwise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:padding="1dp"
+                    app:srcCompat="@drawable/ic_rotate_right"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_clockwise"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_marginBottom="15dp"
+            android:padding="1dp"
+            >
+
+            <LinearLayout
+                android:id="@+id/btnRotateClockwise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:padding="1dp"
+                    app:srcCompat="@drawable/ic_rotate_right"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_clockwise"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnFlipHorizontally"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:padding="1dp"
+                    app:srcCompat="@drawable/ic_flip_horizontally"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/flip_horizontally"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnFlipVertically"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:padding="1dp"
+                    app:srcCompat="@drawable/ic_flip_vertically"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/flip_vertically"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_button_gray"
+            android:padding="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginHorizontal="10dp"
+            >
+
+            <LinearLayout
+                android:id="@+id/btnCrop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:focusable="true"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/menu_icon_height_width"
+                    android:paddingVertical="1dp"
+                    android:paddingStart="1dp"
+                    android:paddingEnd="5dp"
+                    app:srcCompat="@drawable/ic_crop"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/crop_image"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
