@@ -36,14 +36,22 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="copy_link">Copy link</string>
+    <string name="no">No</string>
     <string name="question_deleted">The question has been deleted.</string>
     <string name="question_not_deleted">Unable to delete this question at the moment.</string>
     <string name="delete_question_alert_title">Delete question?</string>
     <string name="delete_question_alert_message">Are you sure you want to delete this question?</string>
     <string name="delete_question_alert_yes">Yes, Delete</string>
-    <string name="no">No</string>
     <string name="question_add_success">Successfully added question!</string>
     <string name="question_add_failure">Unable to add question! Try again.</string>
+    <string name="answer_deleted">The answer has been deleted.</string>
+    <string name="answer_not_deleted">Unable to delete this answer at the moment.</string>
+    <string name="delete_answer_alert_title">Delete answer?</string>
+    <string name="delete_answer_alert_message">Are you sure you want to delete this answer?</string>
+    <string name="delete_answer_alert_yes">Yes, Delete</string>
+    <string name="answer_add_success">Successfully added answer!</string>
+    <string name="answer_add_failure">Unable to add answer! Try again.</string>
     <string name="answers">" answers"</string>
     <string name="answer">" answer"</string>
+    <string name="unknown_author">Unknown</string>
 </resources>

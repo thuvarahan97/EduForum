@@ -10,11 +10,13 @@ public class Reply {
     public String body;
     public DocumentReference author;
     public Date timestamp;
+    public String postID;
 
-    public Reply(String id, String body, DocumentReference author, Timestamp timestamp) {
+    public Reply(String id, String body, DocumentReference author, Timestamp timestamp, String postID) {
         this.id = id;
         this.body = body;
         this.author = author;
         this.timestamp = timestamp.toDate();
+        this.postID = postID;
     }
 }

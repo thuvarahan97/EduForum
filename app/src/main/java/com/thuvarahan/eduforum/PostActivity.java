@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -110,24 +111,22 @@ public class PostActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
                         DocumentSnapshot doc = task.getResult();
-                        if (doc.getData() != null && doc.getData().get("displayName") != null) {
+                        if (doc != null && doc.getData() != null && doc.getData().get("displayName") != null) {
                             String authorVal = doc.getData().get("displayName").toString();
                             author.setText(authorVal);
                         }
                         else {
-                            author.setText("Unknown");
+                            author.setText(getResources().getString(R.string.unknown_author));
                         }
                     }
                     else {
-                        author.setText("Unknown");
+                        author.setText(getResources().getString(R.string.unknown_author));
                     }
                 }
             });
 
             //---------------- Convert Date Format ---------------//
-            Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-            cal.setTimeInMillis(_post.timestamp.getTime());
-            String date = DateFormat.format("dd MMM yyyy", cal).toString();
+            String date = CustomUtils.formatTimestamp(_post.timestamp);
             timestamp.setText(date);
 
             //----------------- Display Image ------------//
@@ -200,12 +199,13 @@ public class PostActivity extends AppCompatActivity {
         .whereEqualTo("canDisplay", true)
         .get()
         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     QuerySnapshot result = task.getResult();
                     if (result == null || result.isEmpty()) {
-                        replies_count.setText("0" + " replies");
+                        replies_count.setText("0" + getResources().getString(R.string.answers));
                         stopRefreshing();
                         return;
                     }
@@ -213,10 +213,10 @@ public class PostActivity extends AppCompatActivity {
                     replies.clear();
 
                     if (result.size() == 1) {
-                        replies_count.setText("1" + " reply");
+                        replies_count.setText("1" + getResources().getString(R.string.answer));
                     }
                     else {
-                        replies_count.setText(result.size() + " replies");
+                        replies_count.setText(result.size() + getResources().getString(R.string.answers));
                     }
 
                     for (QueryDocumentSnapshot document : result) {
@@ -230,7 +230,7 @@ public class PostActivity extends AppCompatActivity {
 
                         assert author != null;
                         assert timestamp != null;
-                        Reply reply = new Reply(id, body, author, timestamp);
+                        Reply reply = new Reply(id, body, author, timestamp, postID);
                         replies.add(reply);
                         showRecyclerView();
                         stopRefreshing();

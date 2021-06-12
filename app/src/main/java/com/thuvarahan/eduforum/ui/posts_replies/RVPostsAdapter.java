@@ -1,5 +1,6 @@
 package com.thuvarahan.eduforum.ui.posts_replies;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,7 +69,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         private final TextView replies_count;
         private final ImageView image;
         private final AppCompatButton view_btn;
-        private Button btnOptions;
+        private final Button btnOptions;
 
         public ViewHolder(View view) {
             super(view);
@@ -111,16 +112,16 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
-                    if (doc.getData() != null && doc.getData().get("displayName") != null) {
+                    if (doc != null && doc.getData() != null && doc.getData().get("displayName") != null) {
                         String authorVal = doc.getData().get("displayName").toString();
                         holder.author.setText(authorVal);
                     }
                     else {
-                        holder.author.setText("Unknown");
+                        holder.author.setText(holder.itemView.getContext().getResources().getString(R.string.unknown_author));
                     }
                 }
                 else {
-                    holder.author.setText("Unknown");
+                    holder.author.setText(holder.itemView.getContext().getResources().getString(R.string.unknown_author));
                 }
             }
         });
@@ -155,24 +156,25 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         .orderBy("timestamp", Query.Direction.DESCENDING)
         .get()
         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     QuerySnapshot result = task.getResult();
                     if (result == null || result.isEmpty()) {
-                        holder.replies_count.setText("0" + holder.replies_count.getContext().getResources().getString(R.string.answers));
+                        holder.replies_count.setText("0" + holder.itemView.getContext().getResources().getString(R.string.answers));
                         return;
                     }
 
                     if (result.size() == 1) {
-                        holder.replies_count.setText("1" + holder.replies_count.getContext().getResources().getString(R.string.answer));
+                        holder.replies_count.setText("1" + holder.itemView.getContext().getResources().getString(R.string.answer));
                     }
                     else {
-                        holder.replies_count.setText(result.size() + holder.replies_count.getContext().getResources().getString(R.string.answers));
+                        holder.replies_count.setText(result.size() + holder.itemView.getContext().getResources().getString(R.string.answers));
                     }
                 }
                 else {
-                    holder.replies_count.setText("0" + holder.replies_count.getContext().getResources().getString(R.string.answers));
+                    holder.replies_count.setText("0" + holder.itemView.getContext().getResources().getString(R.string.answers));
                 }
             }
         });
@@ -187,6 +189,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             }
         });
 
+        //---------------- Clicking Options ------------------//
         holder.btnOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -224,6 +227,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
 
         assert edit != null;
         assert delete != null;
+        assert copyLink != null;
 
         if (currentUserID.equals(postAuthorRef.getId())) {
             edit.setVisibility(View.VISIBLE);
@@ -289,7 +293,6 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
             }
         });
 
-        assert copyLink != null;
         copyLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,7 +304,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         bottomSheetDialog.show();
     }
 
-    void showPostOptionsPopupMenu(Context context, Button btnOptions) {
+    /*void showPostOptionsPopupMenu(Context context, Button btnOptions) {
         //creating a popup menu
         PopupMenu popup = new PopupMenu(context, btnOptions);
         //inflating menu from xml resource
@@ -327,6 +330,6 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         });
         //displaying the popup
         popup.show();
-    }
+    }*/
 
 }
