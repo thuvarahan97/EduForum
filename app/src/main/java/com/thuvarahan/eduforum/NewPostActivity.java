@@ -223,8 +223,8 @@ public class NewPostActivity extends AppCompatActivity {
         DocumentReference author = db.collection("users").document(currentUserID);
 
         Map<String, Object> post = new HashMap<>();
-        post.put("postTitle", title.getText().toString());
-        post.put("postBody", body.getText().toString());
+        post.put("postTitle", title.getText().toString().trim());
+        post.put("postBody", body.getText().toString().trim());
         post.put("postAuthor", author);
         post.put("timestamp", FieldValue.serverTimestamp());
         post.put("canDisplay", true);

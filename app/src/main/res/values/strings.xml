@@ -69,4 +69,5 @@
     <string name="unable_to_retrieve_notifications">Unable to retrieve notifications! Try again.</string>
     <string name="you_havent_posted_anything">You haven\'t posted anything yet.</string>
     <string name="unable_to_retrieve_posts">Unable to retrieve posts! Try again.</string>
+    <string name="unable_to_add_answer">Unable to add answer! Try again.</string>
 </resources>

@@ -6,15 +6,20 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.text.format.DateFormat;
-import android.widget.Button;
+import android.widget.Toast;
 
-import com.huawei.agconnect.applinking.AppLinking;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
@@ -128,4 +133,17 @@ public class CustomUtils {
         ClipData clip = ClipData.newPlainText("Copied Text", text);
         clipboard.setPrimaryClip(clip);
     }
+
+    public static void saveLocalTokenData(Context context, String token) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("push_token", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("token", token);
+        editor.apply();
+    }
+
+    public static String getLocalTokenData(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("push_token", MODE_PRIVATE);
+        return sharedPreferences.getString("token", "");
+    }
+
 }

@@ -44,7 +44,9 @@ import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
 import com.thuvarahan.eduforum.data.reply.Reply;
 
@@ -81,6 +83,7 @@ public class PostActivity extends AppCompatActivity {
     SwipeRefreshLayout swipeRefresh;
 
     String currentUserID = "";
+    String currentUserDisplayName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +107,9 @@ public class PostActivity extends AppCompatActivity {
         Post _post = (Post) getIntent().getSerializableExtra("post");
 
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
-        currentUserID = loginRepository.getUser().getUserID();
+        User user = loginRepository.getUser();
+        currentUserID = user.getUserID();
+        currentUserDisplayName = user.getDisplayName();
 
         if (_post != null) {
             postID = _post.id;
@@ -184,11 +189,11 @@ public class PostActivity extends AppCompatActivity {
 
             btnAddReply.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View view) {
                     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
 
-                    saveReply();
+                    saveReply(_post.authorRef);
                 }
             });
 
@@ -303,12 +308,12 @@ public class PostActivity extends AppCompatActivity {
         btnAddReply.setEnabled(replyBody.trim().length() != 0 && replyBody.trim().length() != 0);
     }
 
-    void saveReply() {
-        DocumentReference author = db.collection("users").document(currentUserID);
+    void saveReply(String postAuthorRef) {
+        DocumentReference replyAuthor = db.collection("users").document(currentUserID);
 
         Map<String, Object> reply = new HashMap<>();
-        reply.put("replyBody", etReplyBody.getText().toString());
-        reply.put("replyAuthor", author);
+        reply.put("replyBody", etReplyBody.getText().toString().trim());
+        reply.put("replyAuthor", replyAuthor);
         reply.put("timestamp", FieldValue.serverTimestamp());
         reply.put("canDisplay", true);
 
@@ -331,15 +336,64 @@ public class PostActivity extends AppCompatActivity {
                 etReplyBody.getText().clear();
                 etReplyBody.clearFocus();
 
-                fetchReplies(getApplicationContext() ,db, postID);
+                DocumentReference postAuthor = db.document(postAuthorRef);
+
+                postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        Map<String, Object> docData = documentSnapshot.getData();
+                        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAA");
+                        if (docData != null && docData.get("pushToken") != null && !docData.get("pushToken").toString().trim().isEmpty()) {
+                            String receiverToken = docData.get("pushToken").toString();
+                            System.out.println("BBBBBBBBBBBBBBBBBB");
+
+                            String senderToken = CustomUtils.getLocalTokenData(getApplicationContext());
+                            if (senderToken != null && !senderToken.isEmpty() && !senderToken.trim().isEmpty()) {
+                                String requestBody = PushNotification.getNotificationRequestBody(currentUserDisplayName, postID, receiverToken);
+
+                                System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCC");
+
+                                System.out.println("SenderToken: " + senderToken);
+                                System.out.println("ReceiverToken: " + receiverToken);
+
+                                if (requestBody != null && !requestBody.equals("")) {
+                                    System.out.println("DDDDDDDDDDDDDDDDD");
+                                    PushNotification.sendNotification(senderToken, requestBody);
+
+                                    //--------- Save Notification in Firestore --------//
+                                    DocumentReference postRef = db.collection("posts").document(postID);
+
+                                    Map<String, Object> notification = new HashMap<>();
+                                    notification.put("post", postRef);
+                                    notification.put("author", postAuthor);
+                                    notification.put("timestamp", FieldValue.serverTimestamp());
+                                    notification.put("canDisplay", true);
+                                    notification.put("isChecked", false);
+
+                                    String TAG1 = "Save New Notification: ";
+
+                                    postAuthor.collection("notifications")
+                                    .add(notification)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Log.d(TAG1, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+
+                fetchReplies(getApplicationContext(), db, postID);
             }
         })
         .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG, "Error adding document", e);
-                Snackbar snackbar = Snackbar.make(rootView,"Unable to add reply! Try again.", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null)
+                Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.unable_to_add_answer), Snackbar.LENGTH_LONG)
                     .setBackgroundTint(Color.RED)
                     .setTextColor(Color.WHITE);
                 snackbar.show();

@@ -26,6 +26,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.PostActivity;
@@ -95,9 +96,9 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
 
         //------------ Set Notification Color ------------//
         if (_notification.isChecked) {
-            holder.notif.setBackgroundColor(Color.rgb(210, 193, 227));
-        } else {
             holder.notif.setBackgroundColor(Color.WHITE);
+        } else {
+            holder.notif.setBackgroundColor(Color.rgb(210, 193, 227));
         }
 
         //---------------- Fetch Author's Name ---------------//
@@ -150,6 +151,20 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
 
                                 assert authorRef != null;
                                 assert timestamp != null;
+
+                                //--------- Set notification as checked --------//
+                                db.collection("users").document(currentUserID)
+                                .collection("notifications")
+                                .document(_notification.id)
+                                .update("isChecked", true)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        holder.notif.setBackgroundColor(Color.WHITE);
+                                    }
+                                });
+
+                                //-------- Go to Post Activity -------//
                                 Post _post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
                                 Intent intent = new Intent(view.getContext(), PostActivity.class);
                                 intent.putExtra("post", _post);
@@ -230,7 +245,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
     }
 
     Spanned getNotificationBody(String boldText, String normalText) {
-        return Html.fromHtml("<b>" + boldText + "</b>" + normalText);
+        return Html.fromHtml("<b>" + boldText + "</b> " + normalText);
     }
 
 }

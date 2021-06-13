@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.MainActivity;
 import com.thuvarahan.eduforum.R;
+import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.register.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -143,6 +144,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUiWithUser(LoggedInUserView model) {
         CustomUtils.saveLocalUserData(getApplicationContext(), model.getUserID(), model.getDisplayName(), model.getUsername(), model.getDateCreated());
+        PushNotification.getToken(getApplicationContext());
         String welcome = getString(R.string.welcome) + " " + model.getDisplayName() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }

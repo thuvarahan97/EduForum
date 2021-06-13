@@ -8,6 +8,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.user.User;
+import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.login.LoginActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //----------- Check User Logged-In -------------//
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
-
         HashMap<String, Object> userData = CustomUtils.getLocalUserData(getApplicationContext());
         if (userData != null && userData.containsKey("userID") && !userData.get("userID").toString().isEmpty()) {
             String userID = userData.get("userID").toString();
@@ -48,8 +49,18 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
+
+        //-------------- Check Push Token -------------//
+        String pushToken = CustomUtils.getLocalTokenData(getApplicationContext());
+        if (pushToken == null || pushToken.isEmpty() || pushToken.trim().equals("")) {
+            PushNotification.getToken(getApplicationContext());
+        }
+
+
+        //------------ Initialize Fragments -----------//
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.

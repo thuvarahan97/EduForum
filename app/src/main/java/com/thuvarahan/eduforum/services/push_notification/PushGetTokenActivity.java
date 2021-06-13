@@ -7,11 +7,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.huawei.agconnect.config.AGConnectServicesConfig;
 import com.huawei.hms.aaid.HmsInstanceId;
 import com.huawei.hms.common.ApiException;
+import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.R;
+
+import java.util.HashMap;
 
 public class PushGetTokenActivity extends Activity implements View.OnClickListener {
 
@@ -50,7 +56,7 @@ public class PushGetTokenActivity extends Activity implements View.OnClickListen
             public void run() {
                 try {
                     // read from agconnect-services.json
-                    String appId = AGConnectServicesConfig.fromContext(getApplicationContext()).getString("client/app_id");
+                    String appId = "104395687";
                     String token = HmsInstanceId.getInstance(getApplicationContext()).getToken(appId, "HCM");
                     Log.i(TAG, "get token:" + token);
                     // 1. After a token is obtained by using the getToken method, null judgment must be performed.
@@ -69,7 +75,21 @@ public class PushGetTokenActivity extends Activity implements View.OnClickListen
     }
 
     private void sendRegTokenToServer(String token) {
-        Log.i(TAG, "sending token to server. token:" + token);
+        Toast.makeText(getApplicationContext(), token.toString(), Toast.LENGTH_LONG).show();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        HashMap<String, Object> userData = CustomUtils.getLocalUserData(getApplicationContext());
+        if (userData != null && userData.containsKey("userID") && !userData.get("userID").toString().isEmpty()) {
+            String userID = userData.get("userID").toString();
+            db.collection("users").document(userID)
+            .update("pushToken", token)
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "sent token to server. token:" + token);
+                }
+            });
+        }
     }
 
     private void deleteToken() {
