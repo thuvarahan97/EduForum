@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,6 +43,7 @@ import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
 
+    RecyclerView recyclerView;
     RVPostsAdapter rvAdapter;
     SwipeRefreshLayout swipeRefresh;
     AppCompatButton btnLogout;
@@ -58,6 +60,7 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        recyclerView = root.findViewById(R.id.recycler_posts_view);
         tvUnavailable = root.findViewById(R.id.text_unavailable);
         profileDisplayName = root.findViewById(R.id.profile_header_displayname);
         profileEmail = root.findViewById(R.id.profile_header_email);
@@ -117,38 +120,43 @@ public class ProfileFragment extends Fragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     QuerySnapshot result = task.getResult();
-                    if (result == null || result.isEmpty()) {
+                    if (result != null && !result.isEmpty()) {
+                        posts.clear();
+
+                        for (QueryDocumentSnapshot document : result) {
+                            Log.d(TAG, document.getId() + " => " + document.getData());
+
+                            Map<String, Object> data = document.getData();
+                            String id = document.getId().toString();
+                            String title = Objects.requireNonNull(data.get("postTitle")).toString();
+                            String body = Objects.requireNonNull(data.get("postBody")).toString();
+                            DocumentReference authorRef = (DocumentReference) data.get("postAuthor");
+                            Timestamp timestamp = (Timestamp) data.get("timestamp");
+                            ArrayList<String> images = new ArrayList<>((List<String>) data.get("postImages"));
+
+                            assert authorRef != null;
+                            assert timestamp != null;
+                            Post post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
+                            posts.add(post);
+                        }
+                        stopRefreshing();
+                        showRecyclerView();
+                        toggleUnavailableText();
+                    } else {
                         stopRefreshing();
                         toggleUnavailableText();
-                        return;
                     }
-
-                    posts.clear();
-
-                    for (QueryDocumentSnapshot document : result) {
-                        Log.d(TAG, document.getId() + " => " + document.getData());
-
-                        Map<String, Object> data = document.getData();
-                        String id = document.getId().toString();
-                        String title = Objects.requireNonNull(data.get("postTitle")).toString();
-                        String body = Objects.requireNonNull(data.get("postBody")).toString();
-                        DocumentReference authorRef = (DocumentReference) data.get("postAuthor");
-                        Timestamp timestamp = (Timestamp) data.get("timestamp");
-                        ArrayList<String> images = new ArrayList<>((List<String>) data.get("postImages"));
-
-                        assert authorRef != null;
-                        assert timestamp != null;
-                        Post post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
-                        posts.add(post);
-                    }
-                    showRecyclerView();
                 } else {
-                    Snackbar snackbar = Snackbar.make(getView(),"Unable to retrieve posts! Try again.", Snackbar.LENGTH_LONG).setAction("Action", null);
-                    snackbar.show();
-                    /*Toast toast = Toast.makeText(context, "Unable to retrieve posts! Try again.", Toast.LENGTH_SHORT);
-                    toast.show();*/
+                    Snackbar.make(getView(),getResources().getString(R.string.unable_to_retrieve_posts), Snackbar.LENGTH_LONG).show();
                     Log.w(TAG, "Error getting documents.", task.getException());
+                    stopRefreshing();
+                    toggleUnavailableText();
                 }
+            }
+        })
+        .addOnCanceledListener(new OnCanceledListener() {
+            @Override
+            public void onCanceled() {
                 stopRefreshing();
                 toggleUnavailableText();
             }
@@ -160,7 +168,6 @@ public class ProfileFragment extends Fragment {
 
         if (allposts.size() > 0) {
             // set up the RecyclerView
-            RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_posts_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             rvAdapter = new RVPostsAdapter(allposts);
             recyclerView.setAdapter(rvAdapter);
@@ -175,16 +182,18 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public void onResume() {
-        fetchData(getContext(), db);
         super.onResume();
+        fetchData(getContext(), db);
     }
 
     private void toggleUnavailableText() {
         if (posts.size() == 0) {
-            tvUnavailable.setText("You haven\'t posted anything yet.");
+            tvUnavailable.setText(getResources().getString(R.string.you_havent_posted_anything));
             tvUnavailable.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
         } else {
             tvUnavailable.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         }
     }
 }

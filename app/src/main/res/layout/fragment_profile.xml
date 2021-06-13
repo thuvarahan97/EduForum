@@ -19,129 +19,129 @@
             android:fillViewport="true"
             >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/profile_header"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:background="@drawable/bg_gray_gradient"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/section_separator_line"
+                android:layout_height="match_parent"
                 >
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profile_header_img"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:src="@drawable/img_default_profile"
-                    app:civ_border_width="3dp"
-                    app:civ_border_color="@color/lighter_gray"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/profile_header_user_text"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/profile_header_user_text"
-                    android:layout_width="0dp"
+                    android:id="@+id/profile_header"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:background="@drawable/bg_gray_gradient"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/profile_header_img"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:orientation="vertical"
+                    app:layout_constraintBottom_toTopOf="@id/section_separator_line"
                     >
 
-                    <TextView
-                        android:id="@+id/profile_header_displayname"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textAlignment="center"
-                        android:paddingHorizontal="3dp"
-                        android:paddingVertical="2dp"
-                        app:layout_constraintBottom_toTopOf="@id/profile_header_email"
-                        app:layout_constraintEnd_toEndOf="parent"
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/profile_header_img"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/img_default_profile"
+                        app:civ_border_width="3dp"
+                        app:civ_border_color="@color/lighter_gray"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/profile_header_user_text"
                         app:layout_constraintTop_toTopOf="parent"
                         />
 
-                    <TextView
-                        android:id="@+id/profile_header_email"
-                        android:layout_width="match_parent"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/profile_header_user_text"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp"
-                        android:textAlignment="center"
-                        android:paddingHorizontal="3dp"
-                        android:paddingVertical="2dp"
-                        app:layout_constraintTop_toBottomOf="@id/profile_header_displayname"
                         app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintTop_toBottomOf="@+id/profile_header_img"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toBottomOf="@+id/btnLogout"
-                        />
+                        android:orientation="vertical"
+                        >
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btnLogout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:textSize="15sp"
-                        android:textAlignment="center"
-                        android:text="@string/logout"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginBottom="2dp"
-                        app:layout_constraintTop_toBottomOf="@id/profile_header_email"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        />
+                        <TextView
+                            android:id="@+id/profile_header_displayname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textAlignment="center"
+                            android:paddingHorizontal="3dp"
+                            android:paddingVertical="2dp"
+                            app:layout_constraintBottom_toTopOf="@id/profile_header_email"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            />
+
+                        <TextView
+                            android:id="@+id/profile_header_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="@color/light_gray"
+                            android:textSize="14sp"
+                            android:textAlignment="center"
+                            android:paddingHorizontal="3dp"
+                            android:paddingVertical="2dp"
+                            app:layout_constraintTop_toBottomOf="@id/profile_header_displayname"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="@+id/btnLogout"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnLogout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"
+                            android:textAlignment="center"
+                            android:text="@string/logout"
+                            android:layout_marginTop="7dp"
+                            android:layout_marginBottom="2dp"
+                            app:layout_constraintTop_toBottomOf="@id/profile_header_email"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <LinearLayout
+                    android:id="@+id/section_separator_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/lighter_gray"
+                    app:layout_constraintTop_toBottomOf="@id/profile_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/profile_content"
+                    layout="@layout/content_posts"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/section_separator_line"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/section_separator_line"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/lighter_gray"
-                app:layout_constraintTop_toBottomOf="@id/profile_header"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:orientation="horizontal">
-
-            </LinearLayout>
-
-            <include
-                android:id="@+id/profile_content"
-                layout="@layout/content_posts"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toBottomOf="@id/section_separator_line"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
 

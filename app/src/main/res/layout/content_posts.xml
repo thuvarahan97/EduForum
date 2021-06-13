@@ -16,7 +16,7 @@
         android:textSize="15sp"
         android:textStyle="italic"
         android:visibility="gone"
-        android:text="No posts available."
+        android:text="@string/no_questions_available"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

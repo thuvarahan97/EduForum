@@ -60,4 +60,13 @@
     <string name="flip_horizontally">Flip Horizontally</string>
     <string name="crop_image">Crop Image</string>
     <string name="failed_to_load_image">Failed to load the image</string>
+    <string name="no_questions_available">No questions available.</string>
+    <string name="no_notifications_available">No notifications available.</string>
+    <string name="notif_body_answered"> has answered your question.</string>
+    <string name="remove_notification">Remove this notification</string>
+    <string name="notification_removed">Notification removed.</string>
+    <string name="notification_not_removed">Unable to remove this notification at the moment.</string>
+    <string name="unable_to_retrieve_notifications">Unable to retrieve notifications! Try again.</string>
+    <string name="you_havent_posted_anything">You haven\'t posted anything yet.</string>
+    <string name="unable_to_retrieve_posts">Unable to retrieve posts! Try again.</string>
 </resources>

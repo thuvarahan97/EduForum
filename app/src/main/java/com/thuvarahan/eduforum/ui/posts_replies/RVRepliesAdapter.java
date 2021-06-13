@@ -48,7 +48,9 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         this.mData = data;
 
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
-        currentUserID = loginRepository.getUser().getUserID();
+        if (loginRepository.getUser() != null) {
+            currentUserID = loginRepository.getUser().getUserID();
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
