@@ -195,7 +195,7 @@ public class PushNotification {
     public static String getNotificationRequestBody(String authorName, String postID, String receiverToken) {
         String notifTitle = "New answer";
         String notifBody = authorName + " has answered your question.";
-        String intent = getIntentParameter(postID);
+//        String intent = getIntentParameter(postID);
         int intentType = 3;
 
         /*JSONObject data = new JSONObject();

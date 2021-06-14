@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -83,6 +84,12 @@ public class HomeFragment extends Fragment {
         });
 
         fetchData(getContext(), db);
+
+        NetworkChangeReceiver network = new NetworkChangeReceiver();
+        if (!network.isOnline(getContext())) {
+            Toast.makeText(getContext(), "No internet connection!", Toast.LENGTH_LONG).show();
+        }
+
         return root;
     }
 

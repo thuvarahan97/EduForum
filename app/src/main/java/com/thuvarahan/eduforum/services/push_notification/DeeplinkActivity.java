@@ -37,7 +37,7 @@ public class DeeplinkActivity extends Activity {
         if (intent != null) {
             Log.i("Deeplink", "Intent received.");
 
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            /*FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             String postID = intent.getStringExtra("id");
             Log.i(TAG, "postID " + postID);
@@ -68,7 +68,7 @@ public class DeeplinkActivity extends Activity {
                         }
                     }
                 });
-            }
+            }*/
         }
     }
 

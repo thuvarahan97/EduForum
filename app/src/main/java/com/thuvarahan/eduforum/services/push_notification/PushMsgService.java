@@ -48,7 +48,7 @@ public class PushMsgService extends HmsMessageService {
 
         Log.i("sss", "aaaaaaa");
 
-        if (remoteMessage != null) {
+        /*if (remoteMessage != null) {
             if (!remoteMessage.getData().isEmpty()) {
                 Log.d("HMS", "Payload" + remoteMessage.getData());
             }
@@ -56,7 +56,7 @@ public class PushMsgService extends HmsMessageService {
             if (remoteMessage.getNotification() != null) {
                 Log.d("HMS", "Message Notification Body: " + remoteMessage.getNotification().getBody());
             }
-        }
+        }*/
 
     }
 }

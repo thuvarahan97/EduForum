@@ -339,7 +339,7 @@ public class PostActivity extends AppCompatActivity {
 
                 DocumentReference postAuthor = db.document(postAuthorRef);
 
-//                if (!postAuthor.getId().equals(currentUserID)) {
+                if (!postAuthor.getId().equals(currentUserID)) {
                     postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -374,7 +374,7 @@ public class PostActivity extends AppCompatActivity {
                             }
                         }
                     });
-//                }
+                }
 
                 fetchReplies(getApplicationContext(), db, postID);
             }
