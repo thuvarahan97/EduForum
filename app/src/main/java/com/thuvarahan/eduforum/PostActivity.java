@@ -69,6 +69,7 @@ public class PostActivity extends AppCompatActivity {
 
     ArrayList<Reply> replies = new ArrayList<Reply>();
 
+    private Post _post;
     private String postID;
 
     private TextView title;
@@ -104,7 +105,7 @@ public class PostActivity extends AppCompatActivity {
         btnOptions = (Button) findViewById(R.id.post_options);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_2);
 
-        Post _post = (Post) getIntent().getSerializableExtra("post");
+        _post = (Post) getIntent().getSerializableExtra("post");
 
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
         User user = loginRepository.getUser();
@@ -338,53 +339,42 @@ public class PostActivity extends AppCompatActivity {
 
                 DocumentReference postAuthor = db.document(postAuthorRef);
 
-                postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Map<String, Object> docData = documentSnapshot.getData();
-                        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAA");
-                        if (docData != null && docData.get("pushToken") != null && !docData.get("pushToken").toString().trim().isEmpty()) {
-                            String receiverToken = docData.get("pushToken").toString();
-                            System.out.println("BBBBBBBBBBBBBBBBBB");
-
-                            String senderToken = CustomUtils.getLocalTokenData(getApplicationContext());
-                            if (senderToken != null && !senderToken.isEmpty() && !senderToken.trim().isEmpty()) {
-                                String requestBody = PushNotification.getNotificationRequestBody(currentUserDisplayName, postID, receiverToken);
-
-                                System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCC");
-
-                                System.out.println("SenderToken: " + senderToken);
+//                if (!postAuthor.getId().equals(currentUserID)) {
+                    postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Map<String, Object> docData = documentSnapshot.getData();
+                            if (docData != null && docData.get("pushToken") != null && !docData.get("pushToken").toString().trim().isEmpty()) {
+                                String receiverToken = docData.get("pushToken").toString();
                                 System.out.println("ReceiverToken: " + receiverToken);
 
-                                if (requestBody != null && !requestBody.equals("")) {
-                                    System.out.println("DDDDDDDDDDDDDDDDD");
-                                    PushNotification.sendNotification(senderToken, requestBody);
+                                //--------- Send Notification ----------//
+                                PushNotification.sendNotification(receiverToken, currentUserDisplayName, postID);
 
-                                    //--------- Save Notification in Firestore --------//
-                                    DocumentReference postRef = db.collection("posts").document(postID);
+                                //--------- Save Notification in Firestore --------//
+                                DocumentReference postRef = db.collection("posts").document(postID);
 
-                                    Map<String, Object> notification = new HashMap<>();
-                                    notification.put("post", postRef);
-                                    notification.put("author", postAuthor);
-                                    notification.put("timestamp", FieldValue.serverTimestamp());
-                                    notification.put("canDisplay", true);
-                                    notification.put("isChecked", false);
+                                Map<String, Object> notification = new HashMap<>();
+                                notification.put("post", postRef);
+                                notification.put("author", replyAuthor);
+                                notification.put("timestamp", FieldValue.serverTimestamp());
+                                notification.put("canDisplay", true);
+                                notification.put("isChecked", false);
 
-                                    String TAG1 = "Save New Notification: ";
+                                String TAG1 = "Save New Notification: ";
 
-                                    postAuthor.collection("notifications")
-                                    .add(notification)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG1, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                        }
-                                    });
-                                }
+                                postAuthor.collection("notifications")
+                                .add(notification)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.d(TAG1, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                    }
+                                });
                             }
                         }
-                    }
-                });
+                    });
+//                }
 
                 fetchReplies(getApplicationContext(), db, postID);
             }
@@ -483,4 +473,5 @@ public class PostActivity extends AppCompatActivity {
 
         bottomSheetDialog.show();
     }
+
 }

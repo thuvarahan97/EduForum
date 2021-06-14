@@ -103,31 +103,6 @@ public class CustomUtils {
         dialog.show();*/
     }
 
-    /*public static Uri getAppLink() {
-        AppLinking.Builder builder = AppLinking.newBuilder()
-            .setUriPrefix("https://eduforum.dra.agconnect.link")
-            .setDeepLink(Uri.parse("https://eduforum-app.firebaseapp.com/question"))
-            .setAndroidLinkInfo(AppLinking.AndroidLinkInfo.newBuilder()
-                    .setAndroidDeepLink("agckit://eduforum-app.firebaseapp.com/question")
-                    .build())
-            .setSocialCardInfo(AppLinking.SocialCardInfo.newBuilder()
-                    .setTitle("Title")
-                    .setImageUrl("https://example.com/1.png")
-                    .setDescription("Description").build())
-            .setCampaignInfo(AppLinking.CampaignInfo.newBuilder()
-                    .setName("name")
-                    .setSource("AGC")
-                    .setMedium("App")
-                    .build())
-            .setPreviewType(AppLinking.LinkingPreviewType.AppInfo);
-        *//*builder.buildShortAppLinking().addOnSuccessListener(shortAppLinking -> {
-            Uri shortLinkUri = shortAppLinking.getShortUrl();
-        }).addOnFailureListener(e -> {
-            //AppLinkingException
-        });*//*
-        return builder.buildAppLinking().getUri();
-    }*/
-
     public static void copyTextToClipboard(Context context, String text) {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Copied Text", text);

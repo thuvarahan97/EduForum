@@ -35,22 +35,6 @@ public class PushMsgService extends HmsMessageService {
 
     private void refreshedTokenToServer(String token) {
         Log.i(TAG, "sending token to server. token:" + token);
-
-        /*FirebaseFirestore db = FirebaseFirestore.getInstance();
-        HashMap<String, Object> userData = CustomUtils.getLocalUserData(getApplicationContext());
-        if (userData != null && userData.containsKey("userID") && !userData.get("userID").toString().isEmpty()) {
-            String userID = userData.get("userID").toString();
-            db.collection("users").document(userID)
-            .update("pushToken", token)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    CustomUtils.saveLocalTokenData(getApplicationContext(), token);
-                    Log.i(TAG, "sent token to server. token:" + token);
-                    Toast.makeText(getApplicationContext(), "aaaaaaaaaaaahhhhhhh", Toast.LENGTH_LONG).show();
-                }
-            });
-        }*/
     }
 
     @Override
@@ -61,6 +45,18 @@ public class PushMsgService extends HmsMessageService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+
+        Log.i("sss", "aaaaaaa");
+
+        if (remoteMessage != null) {
+            if (!remoteMessage.getData().isEmpty()) {
+                Log.d("HMS", "Payload" + remoteMessage.getData());
+            }
+
+            if (remoteMessage.getNotification() != null) {
+                Log.d("HMS", "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            }
+        }
 
     }
 }
