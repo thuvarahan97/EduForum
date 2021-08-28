@@ -1,5 +1,7 @@
 package com.thuvarahan.eduforum.data.login;
 
+import android.content.Context;
+
 import com.thuvarahan.eduforum.data.login.model.LoggedInUser;
 import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.interfaces.ILoginUserTask;
@@ -52,6 +54,19 @@ public class LoginRepository {
     public void login(String username, String password, ILoginUserTask userTask) {
         // handle login
         dataSource.login(username, password, new ILoginUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    setLoggedInUser(((Result.Success<User>) result).getData());
+                }
+                userTask.onReturn(result);
+            }
+        });
+    }
+
+    public void loginHwId(Context context, ILoginUserTask userTask) {
+        // handle login
+        dataSource.loginHwId(context, new ILoginUserTask() {
             @Override
             public void onReturn(Result result) {
                 if (result instanceof Result.Success) {

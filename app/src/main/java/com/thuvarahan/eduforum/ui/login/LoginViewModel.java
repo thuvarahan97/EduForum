@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import android.content.Context;
 import android.util.Patterns;
 
 import com.thuvarahan.eduforum.R;
@@ -34,6 +35,25 @@ public class LoginViewModel extends ViewModel {
     public void login(String username, String password) {
         // can be launched in a separate asynchronous job
         loginRepository.login(username, password, new ILoginUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    User data = ((Result.Success<User>) result).getData();
+                    loginResult.setValue(new LoginResult(new LoggedInUserView(data.getUserID(), data.getDisplayName(), data.getUsername(), data.getDateCreated())));
+                } else if (result instanceof Result.NotVerified) {
+                    loginResult.setValue(new LoginResult(R.string.login_not_verified));
+                } else if (result instanceof Result.Invalid) {
+                    loginResult.setValue(new LoginResult(R.string.login_invalid_credentials));
+                }  else {
+                    loginResult.setValue(new LoginResult(R.string.login_failed));
+                }
+            }
+        });
+    }
+
+    public void loginHwId(Context context) {
+        // can be launched in a separate asynchronous job
+        loginRepository.loginHwId(context, new ILoginUserTask() {
             @Override
             public void onReturn(Result result) {
                 if (result instanceof Result.Success) {

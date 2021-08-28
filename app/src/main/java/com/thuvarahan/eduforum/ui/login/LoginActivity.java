@@ -47,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = findViewById(R.id.btnLogin);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
         final ConstraintLayout registerNav = findViewById(R.id.registerNav);
+        final Button loginHwIdButton = findViewById(R.id.btnLoginHwId);
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -138,6 +139,14 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        loginHwIdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+                loginViewModel.loginHwId(LoginActivity.this);
             }
         });
     }

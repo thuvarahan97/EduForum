@@ -401,29 +401,29 @@ public class PostActivity extends AppCompatActivity {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         bottomSheetDialog.setContentView(R.layout.post_options_bottom_sheet_dialog);
 
-//        LinearLayout edit = bottomSheetDialog.findViewById(R.id.post_option_edit);
+        LinearLayout edit = bottomSheetDialog.findViewById(R.id.post_option_edit);
         LinearLayout delete = bottomSheetDialog.findViewById(R.id.post_option_delete);
 
         DocumentReference postAuthorRef = db.document(post.authorRef);
 
-//        assert edit != null;
+        assert edit != null;
         assert delete != null;
 
         if (currentUserID.equals(postAuthorRef.getId())) {
-//            edit.setVisibility(View.VISIBLE);
+            edit.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
         } else {
-//            edit.setVisibility(View.GONE);
+            edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
 
-        /*edit.setOnClickListener(new View.OnClickListener() {
+        edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
                 bottomSheetDialog.dismiss();
             }
-        });*/
+        });
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
