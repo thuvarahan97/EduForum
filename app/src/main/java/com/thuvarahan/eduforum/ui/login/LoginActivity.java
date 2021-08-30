@@ -1,30 +1,28 @@
 package com.thuvarahan.eduforum.ui.login;
 
 import android.app.Activity;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.huawei.hms.support.hwid.ui.HuaweiIdAuthButton;
 import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.MainActivity;
 import com.thuvarahan.eduforum.R;
@@ -47,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = findViewById(R.id.btnLogin);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
         final ConstraintLayout registerNav = findViewById(R.id.registerNav);
-        final Button loginHwIdButton = findViewById(R.id.btnLoginHwId);
+        final HuaweiIdAuthButton loginHwIdButton = findViewById(R.id.btnLoginHwId);
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -146,13 +144,13 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.loginHwId(LoginActivity.this);
+                loginViewModel.loginHwId(LoginActivity.this, loginHwIdActivityResult);
             }
         });
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        CustomUtils.saveLocalUserData(getApplicationContext(), model.getUserID(), model.getDisplayName(), model.getUsername(), model.getDateCreated());
+        CustomUtils.saveLocalUserData(getApplicationContext(), model.getUserID(), model.getDisplayName(), model.getUsername(), model.getUserType(), model.getDateCreated());
         PushNotification.getToken(getApplicationContext());
         String welcome = getString(R.string.welcome) + " " + model.getDisplayName() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
@@ -161,6 +159,19 @@ public class LoginActivity extends AppCompatActivity {
     private void showLoginFailed(@StringRes Integer errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
+
+    ActivityResultLauncher<Intent> loginHwIdActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+        new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent intent = result.getData();
+                loginViewModel.loginHwId(LoginActivity.this, intent);
+            } else {
+                loginViewModel.loginHwId(LoginActivity.this, (Intent) null);
+            }
+        }
+    });
 
     @Override
     protected void onResume() {

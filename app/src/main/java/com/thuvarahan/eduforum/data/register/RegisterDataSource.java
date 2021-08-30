@@ -46,6 +46,7 @@ public class RegisterDataSource {
                         Map<String, Object> userData = new HashMap<>();
                         userData.put("displayName", displayName);
                         userData.put("emailAddress", username);
+                        userData.put("userType", 1);
                         userData.put("userPriority", 1);
                         userData.put("dateCreated", FieldValue.serverTimestamp());
                         userData.put("isActive", true);
@@ -57,7 +58,7 @@ public class RegisterDataSource {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "DocumentSnapshot added with ID: " + user.getUid());
-                                User registeredUser = new User(user.getUid(), displayName, username, new Date());
+                                User registeredUser = new User(user.getUid(), displayName, username, 1, new Date());
                                 userTask.onReturn(new Result.Success<>(registeredUser));
                             }
                         })

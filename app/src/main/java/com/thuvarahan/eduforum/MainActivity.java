@@ -48,13 +48,14 @@ public class MainActivity extends AppCompatActivity {
             String userID = userData.get("userID").toString();
             String displayName = userData.get("displayName").toString();
             String username = userData.get("username").toString();
+            int userType = Integer.parseInt(userData.get("userType").toString());
             Date dateCreated = new Date();
             try {
                 dateCreated = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).parse(userData.get("dateCreated").toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            User currentUser = new User(userID, displayName, username, dateCreated);
+            User currentUser = new User(userID, displayName, username, userType, dateCreated);
             loginRepository.setLoggedInUser(currentUser);
         } else {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);

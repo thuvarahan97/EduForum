@@ -46,12 +46,13 @@ public class CustomUtils {
         return DateFormat.format("dd MMM yyyy hh:mm a", cal).toString();
     }
 
-    public static void saveLocalUserData(Context context, String userID, String displayName, String username, String dateCreated) {
+    public static void saveLocalUserData(Context context, String userID, String displayName, String username, int userType, String dateCreated) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("userID", userID);
         editor.putString("displayName", displayName);
         editor.putString("username", username);
+        editor.putString("userType", String.valueOf(userType));
         editor.putString("dateCreated", dateCreated);
         editor.apply();
     }
@@ -62,6 +63,7 @@ public class CustomUtils {
         userData.put("userID", sharedPreferences.getString("userID", ""));
         userData.put("displayName", sharedPreferences.getString("displayName", ""));
         userData.put("username", sharedPreferences.getString("username", ""));
+        userData.put("userType", sharedPreferences.getString("userType", "0"));
         userData.put("dateCreated", sharedPreferences.getString("dateCreated", ""));
         return userData;
     }

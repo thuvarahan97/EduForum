@@ -1,6 +1,9 @@
 package com.thuvarahan.eduforum.data.login;
 
 import android.content.Context;
+import android.content.Intent;
+
+import androidx.activity.result.ActivityResultLauncher;
 
 import com.thuvarahan.eduforum.data.login.model.LoggedInUser;
 import com.thuvarahan.eduforum.data.user.User;
@@ -37,8 +40,13 @@ public class LoginRepository {
     }
 
     public void logout() {
+        int userType = user.getUserType();
         user = null;
-        dataSource.logout();
+        if (userType == 1) {
+            dataSource.logout();
+        } else if (userType == 2) {
+            dataSource.logoutHwId();
+        }
     }
 
     public User getUser() {
@@ -64,9 +72,22 @@ public class LoginRepository {
         });
     }
 
-    public void loginHwId(Context context, ILoginUserTask userTask) {
+    public void loginHwId(Context context, ActivityResultLauncher<Intent> loginHwIdActivityResult, ILoginUserTask userTask) {
         // handle login
-        dataSource.loginHwId(context, new ILoginUserTask() {
+        dataSource.loginHwId(context, loginHwIdActivityResult, new ILoginUserTask() {
+            @Override
+            public void onReturn(Result result) {
+                if (result instanceof Result.Success) {
+                    setLoggedInUser(((Result.Success<User>) result).getData());
+                }
+                userTask.onReturn(result);
+            }
+        });
+    }
+
+    public void loginHwId(Context context, Intent data, ILoginUserTask userTask) {
+        // handle login
+        dataSource.loginHwId(context, data, new ILoginUserTask() {
             @Override
             public void onReturn(Result result) {
                 if (result instanceof Result.Success) {

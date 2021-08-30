@@ -7,12 +7,14 @@ public class User {
     private String displayName;
     private String username;
     private Date dateCreated;
+    private int userType;
 
-    public User(String userID, String displayName, String username, Date dateCreated) {
+    public User(String userID, String displayName, String username, int userType, Date dateCreated) {
         this.userID = userID;
         this.displayName = displayName;
         this.username = username;
         this.dateCreated = dateCreated;
+        this.userType = userType;
     }
 
     public String getUserID() {
@@ -25,6 +27,10 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    public int getUserType() {
+        return userType;
     }
 
     public Date getDateCreated() {
