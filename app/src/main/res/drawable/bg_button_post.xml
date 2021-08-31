@@ -4,10 +4,10 @@
         <shape>
             <corners
                 android:radius="5dp" />
-            <stroke
+            <!--<stroke
                 android:color="@color/cardview_light_background"
                 android:width="3dp"
-                />
+                />-->
             <!--<padding
                 android:bottom="12dp"
                 android:top="12dp"
@@ -21,10 +21,10 @@
         <shape>
             <corners
                 android:radius="5dp" />
-            <stroke
+            <!--<stroke
                 android:color="@color/cardview_light_background"
                 android:width="3dp"
-                />
+                />-->
             <padding
                 android:bottom="12dp"
                 android:top="12dp"
@@ -38,10 +38,10 @@
         <shape>
             <corners
                 android:radius="5dp" />
-            <stroke
+            <!--<stroke
                 android:color="@color/cardview_light_background"
                 android:width="3dp"
-                />
+                />-->
             <padding
                 android:bottom="12dp"
                 android:top="12dp"

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (loginResult == null) {
                     return;
                 }
-                loadingProgressBar.setVisibility(View.GONE);
+                toggleProgressBar(loadingProgressBar, false);
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
 
@@ -104,8 +105,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                loginViewModel.loginDataChanged(usernameEditText.getText().toString(), passwordEditText.getText().toString());
             }
         };
         usernameEditText.addTextChangedListener(afterTextChangedListener);
@@ -126,9 +126,8 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                toggleProgressBar(loadingProgressBar, true);
+                loginViewModel.login(usernameEditText.getText().toString(), passwordEditText.getText().toString());
             }
         });
 
@@ -143,10 +142,20 @@ public class LoginActivity extends AppCompatActivity {
         loginHwIdButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
+                toggleProgressBar(loadingProgressBar, true);
                 loginViewModel.loginHwId(LoginActivity.this, loginHwIdActivityResult);
             }
         });
+    }
+
+    private void toggleProgressBar(ProgressBar loadingProgressBar, boolean value) {
+        if (value) {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        } else {
+            loadingProgressBar.setVisibility(View.GONE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
@@ -161,17 +170,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     ActivityResultLauncher<Intent> loginHwIdActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-        new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent intent = result.getData();
-                loginViewModel.loginHwId(LoginActivity.this, intent);
-            } else {
-                loginViewModel.loginHwId(LoginActivity.this, (Intent) null);
-            }
-        }
-    });
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent intent = result.getData();
+                        loginViewModel.loginHwId(LoginActivity.this, intent);
+                    } else {
+                        loginViewModel.loginHwId(LoginActivity.this, (Intent) null);
+                    }
+                }
+            });
 
     @Override
     protected void onResume() {
