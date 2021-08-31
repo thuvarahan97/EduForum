@@ -41,37 +41,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //----------- Check User Logged-In -------------//
-        LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
-        HashMap<String, Object> userData = CustomUtils.getLocalUserData(getApplicationContext());
-        if (userData != null && userData.containsKey("userID") && !userData.get("userID").toString().isEmpty()) {
-            String userID = userData.get("userID").toString();
-            String displayName = userData.get("displayName").toString();
-            String username = userData.get("username").toString();
-            int userType = Integer.parseInt(userData.get("userType").toString());
-            Date dateCreated = new Date();
-            try {
-                dateCreated = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).parse(userData.get("dateCreated").toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            User currentUser = new User(userID, displayName, username, userType, dateCreated);
-            loginRepository.setLoggedInUser(currentUser);
-        } else {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
-
-        //-------------- Check Push Token -------------//
-        String pushToken = CustomUtils.getLocalTokenData(getApplicationContext());
-        if (pushToken == null || pushToken.isEmpty() || pushToken.trim().equals("")) {
-            PushNotification.getToken(getApplicationContext());
-        }
-
-
         //------------ Initialize Fragments -----------//
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each

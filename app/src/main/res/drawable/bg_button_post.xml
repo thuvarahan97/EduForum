@@ -4,10 +4,10 @@
         <shape>
             <corners
                 android:radius="5dp" />
-            <!--<stroke
+            <stroke
                 android:color="@color/cardview_light_background"
-                android:width="3dp"
-                />-->
+                android:width="2dp"
+                />
             <!--<padding
                 android:bottom="12dp"
                 android:top="12dp"
@@ -21,34 +21,34 @@
         <shape>
             <corners
                 android:radius="5dp" />
-            <!--<stroke
-                android:color="@color/cardview_light_background"
-                android:width="3dp"
-                />-->
+            <stroke
+                android:color="@color/purple_3"
+                android:width="2dp"
+                />
             <padding
                 android:bottom="12dp"
                 android:top="12dp"
                 android:left="12dp"
                 android:right="12dp"
                 />
-            <solid android:color="@color/design_default_color_primary_dark"/>
+            <solid android:color="@color/purple_1"/>
         </shape>
     </item>
     <item>
         <shape>
             <corners
                 android:radius="5dp" />
-            <!--<stroke
-                android:color="@color/cardview_light_background"
-                android:width="3dp"
-                />-->
+            <stroke
+                android:color="@color/purple_3"
+                android:width="2dp"
+                />
             <padding
                 android:bottom="12dp"
                 android:top="12dp"
                 android:left="12dp"
                 android:right="12dp"
                 />
-            <solid android:color="@color/design_default_color_primary"/>
+            <solid android:color="@color/purple_1"/>
         </shape>
     </item>
 </selector>
