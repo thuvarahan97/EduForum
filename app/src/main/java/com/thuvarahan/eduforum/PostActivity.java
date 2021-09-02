@@ -55,6 +55,7 @@ import com.thuvarahan.eduforum.data.post.Post;
 import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
 
@@ -331,10 +332,10 @@ public class PostActivity extends AppCompatActivity {
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
 
-                /*Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
-                TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
-                toastMessage.setTextColor(Color.GREEN);
-                toast.show();*/
+                        /*Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
+                        TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
+                        toastMessage.setTextColor(Color.GREEN);
+                        toast.show();*/
 
                         etReplyBody.getText().clear();
                         etReplyBody.clearFocus();
@@ -421,8 +422,15 @@ public class PostActivity extends AppCompatActivity {
 
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showEditDialogBox(PostActivity.this, body.getText().toString());
+            public void onClick(View view) {
+                showEditDialogBox(PostActivity.this, view, title.getText().toString(), body.getText().toString(), true, _post, null, new IEditDialogTask() {
+                    @Override
+                    public void onUpdated(String title, String body) {
+                        _post.title = (title != null) ? title : "";
+                        _post.body = body;
+                        recreate();
+                    }
+                });
                 bottomSheetDialog.dismiss();
             }
         });
@@ -476,8 +484,33 @@ public class PostActivity extends AppCompatActivity {
         bottomSheetDialog.show();
     }
 
-    private void showEditDialogBox(Context context, String existingBody) {
+    public static void showEditDialogBox(Context context, View view, String existingTitle, String existingBody, boolean isPost, Post post, Reply reply, IEditDialogTask editDialogTask) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        FrameLayout container = new FrameLayout(context);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 15;
+        params.rightMargin = 15;
+        params.topMargin = 15;
+        params.bottomMargin = 15;
+        //----------- EditTitle ----------//
+        final EditText etEditTitle = new EditText(context);
+        if (isPost) {
+            etEditTitle.setText((existingTitle != null) ? existingTitle : "");
+            etEditTitle.setTextColor(Color.BLACK);
+            etEditTitle.setHint("Write something...");
+            etEditTitle.setTextSize(16);
+            etEditTitle.setMaxHeight(350);
+            etEditTitle.setPadding(15, 15, 15, 15);
+            etEditTitle.setMinLines(5);
+            etEditTitle.setMaxLines(12);
+            etEditTitle.setGravity(Gravity.TOP | Gravity.START);
+            etEditTitle.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1000)});
+            etEditTitle.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_single_post, null));
+            etEditTitle.setLayoutParams(params);
+            container.addView(etEditTitle);
+        }
+        //-------------------------------//
+        //----------- EditBody ----------//
         final EditText etEditBody = new EditText(context);
         etEditBody.setText(existingBody);
         etEditBody.setTextColor(Color.BLACK);
@@ -489,16 +522,11 @@ public class PostActivity extends AppCompatActivity {
         etEditBody.setMaxLines(12);
         etEditBody.setGravity(Gravity.TOP | Gravity.START);
         etEditBody.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1000)});
-        etEditBody.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.bg_single_post, null));
-        FrameLayout container = new FrameLayout(context);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = 15;
-        params.rightMargin = 15;
-        params.topMargin = 15;
-        params.bottomMargin = 15;
+        etEditBody.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_single_post, null));
         etEditBody.setLayoutParams(params);
         container.addView(etEditBody);
-        SpannableString title = new SpannableString("Edit Question");
+        //-------------------------------//
+        SpannableString title = new SpannableString((isPost) ? "Edit Question" : "EditReply");
         title.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(context.getResources(), R.color.black, null)), 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         dialogBuilder.setTitle(title);
         dialogBuilder.setView(container);
@@ -512,15 +540,73 @@ public class PostActivity extends AppCompatActivity {
                 .setPositiveButton("Apply", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String editBody = etEditBody.getText().toString().trim();
-                        applyPostEdit(editBody);
+                        if (isPost) {
+                            String editTitle = etEditTitle.getText().toString().trim();
+                            String editBody = etEditBody.getText().toString().trim();
+                            applyPostEdit(context, view, editTitle, editBody, post, editDialogTask);
+                        } else {
+                            String editBody = etEditBody.getText().toString().trim();
+                            applyReplyEdit(context, view, editBody, reply, editDialogTask);
+                        }
                     }
                 });
         dialogBuilder.show();
     }
 
-    private void applyPostEdit(String editBody) {
-        Toast.makeText(getApplicationContext(), "Copy is Clicked ", Toast.LENGTH_LONG).show();
+    private static void applyPostEdit(Context context, View view, String editTitle, String editBody, Post post, IEditDialogTask editDialogTask) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        Map<String, Object> updateValues = new HashMap<>();
+        updateValues.put("postTitle", editTitle);
+        updateValues.put("postBody", editBody);
+        updateValues.put("lastTimestamp", FieldValue.serverTimestamp());
+        db.collection("posts").document(post.id)
+                .update(updateValues)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(context, context.getResources().getString(R.string.question_updated), Toast.LENGTH_LONG).show();
+                            editDialogTask.onUpdated(editTitle, editBody);
+                        } else {
+                            Snackbar.make(view, context.getResources().getString(R.string.question_not_updated), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+                        progressDialog.dismiss();
+                    }
+                });
+    }
+
+    private static void applyReplyEdit(Context context, View view, String editBody, Reply reply, IEditDialogTask editDialogTask) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        Map<String, Object> updateValues = new HashMap<>();
+        updateValues.put("replyBody", editBody);
+        updateValues.put("lastTimestamp", FieldValue.serverTimestamp());
+        db.collection("posts").document(reply.postID)
+                .collection("replies").document(reply.id)
+                .update(updateValues)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(context, context.getResources().getString(R.string.answer_updated), Toast.LENGTH_LONG).show();
+                            editDialogTask.onUpdated(null, editBody);
+                        } else {
+                            Snackbar.make(view, context.getResources().getString(R.string.answer_not_updated), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+                        progressDialog.dismiss();
+                    }
+                });
     }
 
 }

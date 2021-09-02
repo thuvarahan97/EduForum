@@ -42,6 +42,8 @@
     <string name="delete_question_alert_title">Delete question?</string>
     <string name="delete_question_alert_message">Are you sure you want to delete this question?</string>
     <string name="delete_question_alert_yes">Yes, Delete</string>
+    <string name="question_updated">The question has been updated.</string>
+    <string name="question_not_updated">Unable to update this question at the moment.</string>
     <string name="question_add_success">Successfully added question!</string>
     <string name="question_add_failure">Unable to add question! Try again.</string>
     <string name="answer_deleted">The answer has been deleted.</string>
@@ -49,6 +51,8 @@
     <string name="delete_answer_alert_title">Delete answer?</string>
     <string name="delete_answer_alert_message">Are you sure you want to delete this answer?</string>
     <string name="delete_answer_alert_yes">Yes, Delete</string>
+    <string name="answer_updated">The answer has been updated.</string>
+    <string name="answer_not_updated">Unable to update this answer at the moment.</string>
     <string name="answer_add_success">Successfully added answer!</string>
     <string name="answer_add_failure">Unable to add answer! Try again.</string>
     <string name="answers">" answers"</string>

@@ -24,16 +24,20 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
 import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import static com.thuvarahan.eduforum.PostActivity.showEditDialogBox;
 
 public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.ViewHolder> {
 
@@ -148,6 +152,12 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         notifyItemRangeChanged(position, mData.size());
     }
 
+    public void replaceItemAt(int position, Reply reply) {
+        mData.set(position, reply);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mData.size());
+    }
+
     void showReplyOptionsBottomSheetDialog(Context context, Reply reply, int position) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         bottomSheetDialog.setContentView(R.layout.reply_options_bottom_sheet_dialog);
@@ -161,20 +171,26 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         assert delete != null;
 
         if (currentUserID.equals(replyAuthorRef.getId())) {
-//            edit.setVisibility(View.VISIBLE);
+            edit.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
         } else {
-//            edit.setVisibility(View.GONE);
+            edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
 
-        /*edit.setOnClickListener(new View.OnClickListener() {
+        edit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
+                showEditDialogBox(context, view, null, reply.body, false, null, reply, new IEditDialogTask() {
+                    @Override
+                    public void onUpdated(String title, String body) {
+                        reply.body = body;
+                        replaceItemAt(position, reply);
+                    }
+                });
                 bottomSheetDialog.dismiss();
             }
-        });*/
+        });
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
