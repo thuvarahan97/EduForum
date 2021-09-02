@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +100,7 @@ public class PostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        rootView = findViewById(android.R.id.content).getRootView();
+        rootView = findViewById(android.R.id.content);
 
         title = (TextView) findViewById(R.id.post_title);
         body = (TextView) findViewById(R.id.post_body);
@@ -423,7 +424,7 @@ public class PostActivity extends AppCompatActivity {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showEditDialogBox(PostActivity.this, view, title.getText().toString(), body.getText().toString(), true, _post, null, new IEditDialogTask() {
+                showEditDialogBox(PostActivity.this, rootView, title.getText().toString(), body.getText().toString(), true, _post, null, new IEditDialogTask() {
                     @Override
                     public void onUpdated(String title, String body) {
                         _post.title = (title != null) ? title : "";
@@ -462,7 +463,7 @@ public class PostActivity extends AppCompatActivity {
                                                     Toast.makeText(context, context.getResources().getString(R.string.question_deleted), Toast.LENGTH_LONG).show();
                                                     finish();
                                                 } else {
-                                                    Snackbar.make(view, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
+                                                    Snackbar.make(rootView, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
                                                             .setBackgroundTint(Color.RED)
                                                             .setTextColor(Color.WHITE)
                                                             .show();
@@ -486,50 +487,22 @@ public class PostActivity extends AppCompatActivity {
 
     public static void showEditDialogBox(Context context, View view, String existingTitle, String existingBody, boolean isPost, Post post, Reply reply, IEditDialogTask editDialogTask) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        FrameLayout container = new FrameLayout(context);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = 15;
-        params.rightMargin = 15;
-        params.topMargin = 15;
-        params.bottomMargin = 15;
-        //----------- EditTitle ----------//
-        final EditText etEditTitle = new EditText(context);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        final View alertView = layoutInflater.inflate(R.layout.content_editdialog, null);
+        final TextView tvContentTitle = alertView.findViewById(R.id.content_title);
+        final EditText etEditTitle = alertView.findViewById(R.id.input_title);
+        final EditText etEditBody = alertView.findViewById(R.id.input_body);
+        etEditTitle.setText((existingTitle != null) ? existingTitle : "");
+        etEditBody.setText((existingBody != null) ? existingBody : "");
         if (isPost) {
-            etEditTitle.setText((existingTitle != null) ? existingTitle : "");
-            etEditTitle.setTextColor(Color.BLACK);
-            etEditTitle.setHint("Write something...");
-            etEditTitle.setTextSize(16);
-            etEditTitle.setMaxHeight(350);
-            etEditTitle.setPadding(15, 15, 15, 15);
-            etEditTitle.setMinLines(5);
-            etEditTitle.setMaxLines(12);
-            etEditTitle.setGravity(Gravity.TOP | Gravity.START);
-            etEditTitle.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1000)});
-            etEditTitle.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_single_post, null));
-            etEditTitle.setLayoutParams(params);
-            container.addView(etEditTitle);
+            tvContentTitle.setText("Edit Question");
+            etEditTitle.setVisibility(View.VISIBLE);
+        } else {
+            tvContentTitle.setText("Edit Answer");
+            etEditTitle.setVisibility(View.GONE);
         }
-        //-------------------------------//
-        //----------- EditBody ----------//
-        final EditText etEditBody = new EditText(context);
-        etEditBody.setText(existingBody);
-        etEditBody.setTextColor(Color.BLACK);
-        etEditBody.setHint("Write something...");
-        etEditBody.setTextSize(16);
-        etEditBody.setMaxHeight(350);
-        etEditBody.setPadding(15, 15, 15, 15);
-        etEditBody.setMinLines(5);
-        etEditBody.setMaxLines(12);
-        etEditBody.setGravity(Gravity.TOP | Gravity.START);
-        etEditBody.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1000)});
-        etEditBody.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_single_post, null));
-        etEditBody.setLayoutParams(params);
-        container.addView(etEditBody);
-        //-------------------------------//
-        SpannableString title = new SpannableString((isPost) ? "Edit Question" : "EditReply");
-        title.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(context.getResources(), R.color.black, null)), 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setView(container);
+        dialogBuilder.setView(alertView);
+        dialogBuilder.setCancelable(false);
         dialogBuilder
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -543,10 +516,24 @@ public class PostActivity extends AppCompatActivity {
                         if (isPost) {
                             String editTitle = etEditTitle.getText().toString().trim();
                             String editBody = etEditBody.getText().toString().trim();
-                            applyPostEdit(context, view, editTitle, editBody, post, editDialogTask);
+                            if (!editTitle.isEmpty() && !editBody.isEmpty()) {
+                                applyPostEdit(context, view, editTitle, editBody, post, editDialogTask);
+                            } else {
+                                Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 2), Snackbar.LENGTH_LONG)
+                                        .setBackgroundTint(Color.RED)
+                                        .setTextColor(Color.WHITE)
+                                        .show();
+                            }
                         } else {
                             String editBody = etEditBody.getText().toString().trim();
-                            applyReplyEdit(context, view, editBody, reply, editDialogTask);
+                            if (!editBody.isEmpty()) {
+                                applyReplyEdit(context, view, editBody, reply, editDialogTask);
+                            } else {
+                                Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 1), Snackbar.LENGTH_LONG)
+                                        .setBackgroundTint(Color.RED)
+                                        .setTextColor(Color.WHITE)
+                                        .show();
+                            }
                         }
                     }
                 });

@@ -1,6 +1,7 @@
 package com.thuvarahan.eduforum.ui.posts_replies;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,13 +39,17 @@ import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
+import static com.thuvarahan.eduforum.PostActivity.showEditDialogBox;
 
 public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHolder> {
 
@@ -227,6 +232,12 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         notifyItemRangeChanged(position, mData.size());
     }
 
+    public void replaceItemAt(int position, Post post) {
+        mData.set(position, post);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mData.size());
+    }
+
     void showPostOptionsBottomSheetDialog(Context context, Post post, int position) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         bottomSheetDialog.setContentView(R.layout.post_options_bottom_sheet_dialog);
@@ -242,20 +253,27 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
         assert copyLink != null;
 
         if (currentUserID.equals(postAuthorRef.getId())) {
-//            edit.setVisibility(View.VISIBLE);
+            edit.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
         } else {
-//            edit.setVisibility(View.GONE);
+            edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
 
-        /*edit.setOnClickListener(new View.OnClickListener() {
+        edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Copy is Clicked ", Toast.LENGTH_LONG).show();
+                View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+                showEditDialogBox(context, rootView, post.title, post.body, true, post, null, new IEditDialogTask() {
+                    @Override
+                    public void onUpdated(String title, String body) {
+                        post.body = body;
+                        replaceItemAt(position, post);
+                    }
+                });
                 bottomSheetDialog.dismiss();
             }
-        });*/
+        });
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -271,6 +289,8 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
 
                     @Override
                     public void onPressedYes(DialogInterface alertDialog) {
+                        View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+
                         final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
                         progressDialog.setCancelable(false);
                         progressDialog.show();
@@ -282,10 +302,9 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     removeItemAt(position);
-                                    Snackbar.make(view, context.getResources().getString(R.string.question_deleted), Snackbar.LENGTH_LONG)
-                                    .show();
+                                    Toast.makeText(context, context.getResources().getString(R.string.question_deleted), Toast.LENGTH_LONG).show();
                                 } else {
-                                    Snackbar.make(view, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
+                                    Snackbar.make(rootView, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
                                     .setBackgroundTint(Color.RED)
                                     .setTextColor(Color.WHITE)
                                     .show();

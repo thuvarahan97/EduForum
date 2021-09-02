@@ -1,5 +1,6 @@
 package com.thuvarahan.eduforum.ui.posts_replies;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -181,7 +182,8 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showEditDialogBox(context, view, null, reply.body, false, null, reply, new IEditDialogTask() {
+                View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+                showEditDialogBox(context, rootView, null, reply.body, false, null, reply, new IEditDialogTask() {
                     @Override
                     public void onUpdated(String title, String body) {
                         reply.body = body;
@@ -206,6 +208,8 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
 
                     @Override
                     public void onPressedYes(DialogInterface alertDialog) {
+                        View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+
                         final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
                         progressDialog.setCancelable(false);
                         progressDialog.show();
@@ -218,10 +222,10 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     removeItemAt(position);
-                                    Snackbar.make(view, context.getResources().getString(R.string.answer_deleted), Snackbar.LENGTH_LONG)
+                                    Snackbar.make(rootView, context.getResources().getString(R.string.answer_deleted), Snackbar.LENGTH_LONG)
                                     .show();
                                 } else {
-                                    Snackbar.make(view, context.getResources().getString(R.string.answer_not_deleted), Snackbar.LENGTH_LONG)
+                                    Snackbar.make(rootView, context.getResources().getString(R.string.answer_not_deleted), Snackbar.LENGTH_LONG)
                                     .setBackgroundTint(Color.RED)
                                     .setTextColor(Color.WHITE)
                                     .show();

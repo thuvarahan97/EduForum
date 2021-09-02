@@ -86,8 +86,8 @@ public class NewPostActivity extends AppCompatActivity {
 
         rootView = findViewById(android.R.id.content).getRootView();
 
-        title = findViewById(R.id.input_post_title);
-        body = findViewById(R.id.input_post_body);
+        title = findViewById(R.id.input_title);
+        body = findViewById(R.id.input_body);
         image = findViewById(R.id.post_img);
         btnChoose = findViewById(R.id.choose_image_btn);
         btnAddPost = findViewById(R.id.add_post_btn);
