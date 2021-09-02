@@ -1,6 +1,7 @@
 package com.thuvarahan.eduforum;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,21 +9,14 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputFilter;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,7 +25,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -57,6 +50,7 @@ import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
+import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
 
@@ -198,7 +192,7 @@ public class PostActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(PostActivity.this.getCurrentFocus().getWindowToken(), 0);
 
                     saveReply(_post.authorRef);
                 }
@@ -314,85 +308,92 @@ public class PostActivity extends AppCompatActivity {
     }
 
     void saveReply(String postAuthorRef) {
-        DocumentReference replyAuthor = db.collection("users").document(currentUserID);
+        if (NetworkChangeReceiver.isOnline(PostActivity.this)) {
+            final ProgressDialog progressDialog = new ProgressDialog(PostActivity.this, R.style.ProgressDialogSpinnerOnly);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-        Map<String, Object> reply = new HashMap<>();
-        reply.put("replyBody", etReplyBody.getText().toString().trim());
-        reply.put("replyAuthor", replyAuthor);
-        reply.put("timestamp", FieldValue.serverTimestamp());
-        reply.put("canDisplay", true);
+            DocumentReference replyAuthor = db.collection("users").document(currentUserID);
 
-        String TAG = "Saving New Reply: ";
+            Map<String, Object> reply = new HashMap<>();
+            reply.put("replyBody", etReplyBody.getText().toString().trim());
+            reply.put("replyAuthor", replyAuthor);
+            reply.put("timestamp", FieldValue.serverTimestamp());
+            reply.put("canDisplay", true);
 
-        db.collection("posts")
-                .document(postID)
-                .collection("replies")
-                .add(reply)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+            String TAG = "Saving New Reply: ";
 
-                        /*Toast toast = Toast.makeText(getApplicationContext(), "Successfully saved!", Toast.LENGTH_LONG);
-                        TextView toastMessage = (TextView) toast.getView().findViewById(android.R.id.message);
-                        toastMessage.setTextColor(Color.GREEN);
-                        toast.show();*/
+            db.collection("posts")
+                    .document(postID)
+                    .collection("replies")
+                    .add(reply)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
 
-                        etReplyBody.getText().clear();
-                        etReplyBody.clearFocus();
+                            etReplyBody.getText().clear();
+                            etReplyBody.clearFocus();
 
-                        DocumentReference postAuthor = db.document(postAuthorRef);
+                            DocumentReference postAuthor = db.document(postAuthorRef);
 
-                        if (!postAuthor.getId().equals(currentUserID)) {
-                            postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    Map<String, Object> docData = documentSnapshot.getData();
-                                    if (docData != null && docData.get("pushToken") != null && !docData.get("pushToken").toString().trim().isEmpty()) {
-                                        String receiverToken = docData.get("pushToken").toString();
-                                        System.out.println("ReceiverToken: " + receiverToken);
+                            if (!postAuthor.getId().equals(currentUserID)) {
+                                postAuthor.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        Map<String, Object> docData = documentSnapshot.getData();
+                                        if (docData != null && docData.get("pushToken") != null && !docData.get("pushToken").toString().trim().isEmpty()) {
+                                            String receiverToken = docData.get("pushToken").toString();
+                                            System.out.println("ReceiverToken: " + receiverToken);
 
-                                        //--------- Send Notification ----------//
-                                        PushNotification.sendNotification(receiverToken, currentUserDisplayName, postID);
+                                            //--------- Send Notification ----------//
+                                            PushNotification.sendNotification(receiverToken, currentUserDisplayName, postID);
 
-                                        //--------- Save Notification in Firestore --------//
-                                        DocumentReference postRef = db.collection("posts").document(postID);
+                                            //--------- Save Notification in Firestore --------//
+                                            DocumentReference postRef = db.collection("posts").document(postID);
 
-                                        Map<String, Object> notification = new HashMap<>();
-                                        notification.put("post", postRef);
-                                        notification.put("author", replyAuthor);
-                                        notification.put("timestamp", FieldValue.serverTimestamp());
-                                        notification.put("canDisplay", true);
-                                        notification.put("isChecked", false);
+                                            Map<String, Object> notification = new HashMap<>();
+                                            notification.put("post", postRef);
+                                            notification.put("author", replyAuthor);
+                                            notification.put("timestamp", FieldValue.serverTimestamp());
+                                            notification.put("canDisplay", true);
+                                            notification.put("isChecked", false);
 
-                                        String TAG1 = "Save New Notification: ";
+                                            String TAG1 = "Save New Notification: ";
 
-                                        postAuthor.collection("notifications")
-                                                .add(notification)
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentReference documentReference) {
-                                                        Log.d(TAG1, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                    }
-                                                });
+                                            postAuthor.collection("notifications")
+                                                    .add(notification)
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Log.d(TAG1, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                        }
+                                                    });
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
+                            progressDialog.dismiss();
+                            fetchReplies(getApplicationContext(), db, postID);
                         }
-
-                        fetchReplies(getApplicationContext(), db, postID);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                        Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.unable_to_add_answer), Snackbar.LENGTH_LONG)
-                                .setBackgroundTint(Color.RED)
-                                .setTextColor(Color.WHITE);
-                        snackbar.show();
-                    }
-                });
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding document", e);
+                            progressDialog.dismiss();
+                            Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.unable_to_add_answer), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE);
+                            snackbar.show();
+                        }
+                    });
+        } else {
+            Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.RED)
+                    .setTextColor(Color.WHITE)
+                    .show();
+        }
     }
 
     void stopRefreshing() {
@@ -450,28 +451,35 @@ public class PostActivity extends AppCompatActivity {
 
                             @Override
                             public void onPressedYes(DialogInterface alertDialog) {
-                                final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-                                progressDialog.setCancelable(false);
-                                progressDialog.show();
+                                if (NetworkChangeReceiver.isOnline(context)) {
+                                    final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+                                    progressDialog.setCancelable(false);
+                                    progressDialog.show();
 
-                                db.collection("posts").document(post.id)
-                                        .update("canDisplay", false)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    Toast.makeText(context, context.getResources().getString(R.string.question_deleted), Toast.LENGTH_LONG).show();
-                                                    finish();
-                                                } else {
-                                                    Snackbar.make(rootView, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
-                                                            .setBackgroundTint(Color.RED)
-                                                            .setTextColor(Color.WHITE)
-                                                            .show();
+                                    db.collection("posts").document(post.id)
+                                            .update("canDisplay", false)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Toast.makeText(context, context.getResources().getString(R.string.question_deleted), Toast.LENGTH_LONG).show();
+                                                        finish();
+                                                    } else {
+                                                        Snackbar.make(rootView, context.getResources().getString(R.string.question_not_deleted), Snackbar.LENGTH_LONG)
+                                                                .setBackgroundTint(Color.RED)
+                                                                .setTextColor(Color.WHITE)
+                                                                .show();
+                                                    }
+                                                    progressDialog.dismiss();
                                                 }
-                                                progressDialog.dismiss();
-                                            }
-                                        });
-                                alertDialog.dismiss();
+                                            });
+                                    alertDialog.dismiss();
+                                } else {
+                                    Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
+                                            .setBackgroundTint(Color.RED)
+                                            .setTextColor(Color.WHITE)
+                                            .show();
+                                }
                             }
 
                             @Override
@@ -503,44 +511,75 @@ public class PostActivity extends AppCompatActivity {
         }
         dialogBuilder.setView(alertView);
         dialogBuilder.setCancelable(false);
-        dialogBuilder
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
-                .setPositiveButton("Apply", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (isPost) {
-                            String editTitle = etEditTitle.getText().toString().trim();
-                            String editBody = etEditBody.getText().toString().trim();
-                            if (!editTitle.isEmpty() && !editBody.isEmpty()) {
-                                applyPostEdit(context, view, editTitle, editBody, post, editDialogTask);
-                            } else {
-                                Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 2), Snackbar.LENGTH_LONG)
-                                        .setBackgroundTint(Color.RED)
-                                        .setTextColor(Color.WHITE)
-                                        .show();
-                            }
+        dialogBuilder.setNegativeButton("Cancel", null);
+        dialogBuilder.setPositiveButton("Apply", null);
+        AlertDialog alertDialog = dialogBuilder.show();
+        Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(alertDialog.getCurrentFocus().getWindowToken(), 0);
+                alertDialog.dismiss();
+            }
+        });
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(alertDialog.getCurrentFocus().getWindowToken(), 0);
+                if (isPost) {
+                    String editTitle = etEditTitle.getText().toString().trim();
+                    String editBody = etEditBody.getText().toString().trim();
+                    if (!editTitle.isEmpty() && !editBody.isEmpty()) {
+                        if (NetworkChangeReceiver.isOnline(context)) {
+                            applyPostEdit(context, view, editTitle, editBody, post, editDialogTask, new IEditDialogTask() {
+                                @Override
+                                public void onUpdated(String title, String body) {
+                                    alertDialog.dismiss();
+                                }
+                            });
                         } else {
-                            String editBody = etEditBody.getText().toString().trim();
-                            if (!editBody.isEmpty()) {
-                                applyReplyEdit(context, view, editBody, reply, editDialogTask);
-                            } else {
-                                Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 1), Snackbar.LENGTH_LONG)
-                                        .setBackgroundTint(Color.RED)
-                                        .setTextColor(Color.WHITE)
-                                        .show();
-                            }
+                            Snackbar.make(view, "No internet connection!", Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
                         }
+                    } else {
+                        Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 2), Snackbar.LENGTH_LONG)
+                                .setBackgroundTint(Color.RED)
+                                .setTextColor(Color.WHITE)
+                                .show();
                     }
-                });
-        dialogBuilder.show();
+                } else {
+                    String editBody = etEditBody.getText().toString().trim();
+                    if (!editBody.isEmpty()) {
+                        if (NetworkChangeReceiver.isOnline(context)) {
+                            applyReplyEdit(context, view, editBody, reply, editDialogTask, new IEditDialogTask() {
+                                @Override
+                                public void onUpdated(String title, String body) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+                        } else {
+                            Snackbar.make(view, "No internet connection!", Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+                    } else {
+                        Snackbar.make(view, context.getResources().getQuantityString(R.plurals.input_empty, 1), Snackbar.LENGTH_LONG)
+                                .setBackgroundTint(Color.RED)
+                                .setTextColor(Color.WHITE)
+                                .show();
+                    }
+                }
+            }
+        });
     }
 
-    private static void applyPostEdit(Context context, View view, String editTitle, String editBody, Post post, IEditDialogTask editDialogTask) {
+    private static void applyPostEdit(Context context, View view, String editTitle, String editBody, Post post, IEditDialogTask editDialogTask, IEditDialogTask alertDismissTask) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
         progressDialog.setCancelable(false);
@@ -556,6 +595,7 @@ public class PostActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(context, context.getResources().getString(R.string.question_updated), Toast.LENGTH_LONG).show();
+                            alertDismissTask.onUpdated(editTitle, editBody);
                             editDialogTask.onUpdated(editTitle, editBody);
                         } else {
                             Snackbar.make(view, context.getResources().getString(R.string.question_not_updated), Snackbar.LENGTH_LONG)
@@ -568,7 +608,7 @@ public class PostActivity extends AppCompatActivity {
                 });
     }
 
-    private static void applyReplyEdit(Context context, View view, String editBody, Reply reply, IEditDialogTask editDialogTask) {
+    private static void applyReplyEdit(Context context, View view, String editBody, Reply reply, IEditDialogTask editDialogTask, IEditDialogTask alertDismissTask) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
         progressDialog.setCancelable(false);
@@ -584,6 +624,7 @@ public class PostActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(context, context.getResources().getString(R.string.answer_updated), Toast.LENGTH_LONG).show();
+                            alertDismissTask.onUpdated(null, editBody);
                             editDialogTask.onUpdated(null, editBody);
                         } else {
                             Snackbar.make(view, context.getResources().getString(R.string.answer_not_updated), Snackbar.LENGTH_LONG)

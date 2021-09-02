@@ -4,7 +4,7 @@
     <style name="Theme.EduForum.Custom" parent="Theme.AppCompat.Light">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_1</item>
-        <item name="colorPrimaryVariant">@color/purple_2</item>
+        <item name="colorPrimaryVariant">@color/purple_3</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>

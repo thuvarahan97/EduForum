@@ -11,10 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,14 +23,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thuvarahan.eduforum.CustomUtils;
-import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
-import com.thuvarahan.eduforum.data.post.Post;
 import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
+import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -102,12 +99,10 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
                     if (doc != null && doc.getData() != null && doc.getData().get("displayName") != null) {
                         String authorVal = doc.getData().get("displayName").toString();
                         holder.author.setText(authorVal);
-                    }
-                    else {
+                    } else {
                         holder.author.setText(holder.itemView.getContext().getResources().getString(R.string.unknown_author));
                     }
-                }
-                else {
+                } else {
                     holder.author.setText(holder.itemView.getContext().getResources().getString(R.string.unknown_author));
                 }
             }
@@ -200,47 +195,53 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
                 bottomSheetDialog.dismiss();
 
                 CustomUtils.showAlertDialog(context,
-                    context.getResources().getString(R.string.delete_answer_alert_title),
-                    context.getResources().getString(R.string.delete_answer_alert_message),
-                    context.getResources().getString(R.string.delete_answer_alert_yes),
-                    context.getResources().getString(R.string.no),
-                    new IAlertDialogTask() {
+                        context.getResources().getString(R.string.delete_answer_alert_title),
+                        context.getResources().getString(R.string.delete_answer_alert_message),
+                        context.getResources().getString(R.string.delete_answer_alert_yes),
+                        context.getResources().getString(R.string.no),
+                        new IAlertDialogTask() {
 
-                    @Override
-                    public void onPressedYes(DialogInterface alertDialog) {
-                        View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
-
-                        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-                        progressDialog.setCancelable(false);
-                        progressDialog.show();
-
-                        db.collection("posts").document(reply.postID)
-                        .collection("replies").document(reply.id)
-                        .update("canDisplay", false)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    removeItemAt(position);
-                                    Snackbar.make(rootView, context.getResources().getString(R.string.answer_deleted), Snackbar.LENGTH_LONG)
-                                    .show();
+                            public void onPressedYes(DialogInterface alertDialog) {
+                                View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+                                if (NetworkChangeReceiver.isOnline(context)) {
+                                    final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
+                                    progressDialog.setCancelable(false);
+                                    progressDialog.show();
+
+                                    db.collection("posts").document(reply.postID)
+                                            .collection("replies").document(reply.id)
+                                            .update("canDisplay", false)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        removeItemAt(position);
+                                                        Snackbar.make(rootView, context.getResources().getString(R.string.answer_deleted), Snackbar.LENGTH_LONG)
+                                                                .show();
+                                                    } else {
+                                                        Snackbar.make(rootView, context.getResources().getString(R.string.answer_not_deleted), Snackbar.LENGTH_LONG)
+                                                                .setBackgroundTint(Color.RED)
+                                                                .setTextColor(Color.WHITE)
+                                                                .show();
+                                                    }
+                                                    progressDialog.dismiss();
+                                                }
+                                            });
+                                    alertDialog.dismiss();
                                 } else {
-                                    Snackbar.make(rootView, context.getResources().getString(R.string.answer_not_deleted), Snackbar.LENGTH_LONG)
-                                    .setBackgroundTint(Color.RED)
-                                    .setTextColor(Color.WHITE)
-                                    .show();
+                                    Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
+                                            .setBackgroundTint(Color.RED)
+                                            .setTextColor(Color.WHITE)
+                                            .show();
                                 }
-                                progressDialog.dismiss();
+                            }
+
+                            @Override
+                            public void onPressedNo(DialogInterface alertDialog) {
+                                alertDialog.dismiss();
                             }
                         });
-                        alertDialog.dismiss();
-                    }
-
-                    @Override
-                    public void onPressedNo(DialogInterface alertDialog) {
-                        alertDialog.dismiss();
-                    }
-                });
             }
         });
 

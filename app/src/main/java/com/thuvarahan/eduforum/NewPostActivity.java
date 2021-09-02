@@ -1,9 +1,6 @@
 package com.thuvarahan.eduforum;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
-
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +22,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -37,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
+import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -84,7 +86,7 @@ public class NewPostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_post);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        rootView = findViewById(android.R.id.content).getRootView();
+        rootView = findViewById(android.R.id.content);
 
         title = findViewById(R.id.input_title);
         body = findViewById(R.id.input_body);
@@ -111,13 +113,12 @@ public class NewPostActivity extends AppCompatActivity {
         btnAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(NewPostActivity.this.getCurrentFocus().getWindowToken(), 0);
 
                 if (image.getDrawable() != null) {
                     uploadImage();
-                }
-                else {
+                } else {
                     savePost("");
                 }
             }
@@ -216,55 +217,62 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     void savePost(String imageUrl) {
-        final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialogSpinnerOnly);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        if (NetworkChangeReceiver.isOnline(NewPostActivity.this)) {
+            final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialogSpinnerOnly);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-        DocumentReference author = db.collection("users").document(currentUserID);
+            DocumentReference author = db.collection("users").document(currentUserID);
 
-        Map<String, Object> post = new HashMap<>();
-        post.put("postTitle", title.getText().toString().trim());
-        post.put("postBody", body.getText().toString().trim());
-        post.put("postAuthor", author);
-        post.put("timestamp", FieldValue.serverTimestamp());
-        post.put("canDisplay", true);
+            Map<String, Object> post = new HashMap<>();
+            post.put("postTitle", title.getText().toString().trim());
+            post.put("postBody", body.getText().toString().trim());
+            post.put("postAuthor", author);
+            post.put("timestamp", FieldValue.serverTimestamp());
+            post.put("canDisplay", true);
 
-        ArrayList<String> images = new ArrayList<String>();
-        if (!imageUrl.equals("")) {
-            images.add(imageUrl);
-        }
-        post.put("postImages", images);
-
-        String TAG = "Saving New Post: ";
-
-        db.collection("posts")
-        .add(post)
-        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-
-                progressDialog.dismiss();
-
-                Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.question_add_success), Toast.LENGTH_LONG);
-                toast.show();
-
-                onBackPressed();
+            ArrayList<String> images = new ArrayList<String>();
+            if (!imageUrl.equals("")) {
+                images.add(imageUrl);
             }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error adding document", e);
+            post.put("postImages", images);
 
-                progressDialog.dismiss();
+            String TAG = "Saving New Post: ";
 
-                Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+            db.collection("posts")
+                    .add(post)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+
+                            progressDialog.dismiss();
+
+                            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.question_add_success), Toast.LENGTH_LONG);
+                            toast.show();
+
+                            onBackPressed();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding document", e);
+
+                            progressDialog.dismiss();
+
+                            Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(Color.RED)
+                                    .setTextColor(Color.WHITE);
+                            snackbar.show();
+                        }
+                    });
+        } else {
+            Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
                     .setBackgroundTint(Color.RED)
-                    .setTextColor(Color.WHITE);
-                snackbar.show();
-            }
-        });
+                    .setTextColor(Color.WHITE)
+                    .show();
+        }
     }
 
     // Select Image method
@@ -274,67 +282,74 @@ public class NewPostActivity extends AppCompatActivity {
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityIfNeeded(
-            Intent.createChooser(
-            intent,
-            "Select Image from here..."),
-            PICK_IMAGE_REQUEST);
+                Intent.createChooser(
+                        intent,
+                        "Select Image from here..."),
+                PICK_IMAGE_REQUEST);
     }
 
     void uploadImage() {
-        if(image.getDrawable() != null) {
-            final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
-            progressDialog.setTitle("Uploading Image...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+        if (NetworkChangeReceiver.isOnline(NewPostActivity.this)) {
+            if (image.getDrawable() != null) {
+                final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
+                progressDialog.setTitle("Uploading Image...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
 
-            Bitmap imageBitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageData = baos.toByteArray();
+                Bitmap imageBitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] imageData = baos.toByteArray();
 
-            StorageReference ref = storageReference.child("post_images/" + UUID.randomUUID().toString() + ".jpg");
-            ref.putBytes(imageData)
-            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            progressDialog.dismiss();
-                            String imageUrl = uri.toString();
-                            savePost(imageUrl);
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
-                            Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
-                            .setBackgroundTint(Color.RED)
-                            .setTextColor(Color.WHITE)
-                            .show();
-                        }
-                    });
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    progressDialog.dismiss();
-                    Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                StorageReference ref = storageReference.child("post_images/" + UUID.randomUUID().toString() + ".jpg");
+                ref.putBytes(imageData)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                progressDialog.dismiss();
+                                                String imageUrl = uri.toString();
+                                                savePost(imageUrl);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                                                        .setBackgroundTint(Color.RED)
+                                                        .setTextColor(Color.WHITE)
+                                                        .show();
+                                            }
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                progressDialog.dismiss();
+                                Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                                        .setBackgroundTint(Color.RED)
+                                        .setTextColor(Color.WHITE)
+                                        .show();
+                            }
+                        })
+                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
+                                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                                progressDialog.setMessage((int) progress + "%" + " uploaded");
+                            }
+                        });
+            }
+        } else {
+            Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
                     .setBackgroundTint(Color.RED)
                     .setTextColor(Color.WHITE)
                     .show();
-                }
-            })
-            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                    progressDialog.setMessage((int)progress + "%" + " uploaded");
-                }
-            });
         }
     }
 
@@ -356,7 +371,7 @@ public class NewPostActivity extends AppCompatActivity {
 
         //--------------- Image Crop Activity Result --------------//
         if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
                 String imagePath = data.getExtras().getString("imagePath");
                 if (imagePath != null) {
                     try {
