@@ -189,6 +189,9 @@ public class ProfileFragment extends Fragment {
     private void toggleUnavailableText() {
         if (posts.size() == 0) {
             tvUnavailable.setText(getResources().getString(R.string.you_havent_posted_anything));
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUnavailable.getLayoutParams();
+            params.setMargins(0, 150, 0, 150);
+            tvUnavailable.setLayoutParams(params);
             tvUnavailable.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {

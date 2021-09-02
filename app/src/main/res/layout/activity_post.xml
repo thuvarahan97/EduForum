@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_2"
@@ -17,260 +15,253 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:id="@+id/top_content"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@color/white"
+                android:fillViewport="true"
+                android:orientation="vertical"
                 app:layout_constraintBottom_toTopOf="@+id/bottom_tool"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:clipToPadding="false"
-                >
+                app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    >
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/post_header"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toTopOf="@+id/post_title"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="7dp"
-                        >
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/post_author_imgholder"
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:src="@drawable/img_default_profile"
-                            app:civ_border_width="0dp"
-                            app:civ_border_color="@color/lighter_gray"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/post_author_text"
-                            app:layout_constraintTop_toTopOf="parent"
-                        />
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/post_author_text"
-                            android:layout_width="0dp"
+                            android:id="@+id/post_header"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/post_options"
-                            app:layout_constraintStart_toEndOf="@+id/post_author_imgholder"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:orientation="vertical"
-                            >
+                            android:layout_marginBottom="7dp"
+                            android:orientation="horizontal"
+                            app:layout_constraintBottom_toTopOf="@+id/post_title"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
 
-                            <TextView
-                                android:id="@+id/post_author_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text=""
-                                android:textColor="@color/black"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textAlignment="textStart"
-                                android:paddingHorizontal="3dp"
-                                android:paddingVertical="2dp"
-                                app:layout_constraintBottom_toTopOf="@id/post_timestamp"
-                                app:layout_constraintEnd_toEndOf="parent"
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/post_author_imgholder"
+                                android:layout_width="55dp"
+                                android:layout_height="55dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_marginBottom="8dp"
+                                android:src="@drawable/img_default_profile"
+                                app:civ_border_color="@color/lighter_gray"
+                                app:civ_border_width="0dp"
+                                app:layout_constraintEnd_toStartOf="@id/post_author_text"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                />
+                                app:layout_constraintTop_toTopOf="parent" />
 
-                            <TextView
-                                android:id="@+id/post_timestamp"
-                                android:layout_width="match_parent"
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/post_author_text"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text=""
-                                android:textColor="@color/light_gray"
-                                android:textSize="14sp"
-                                android:textAlignment="textStart"
-                                android:paddingHorizontal="3dp"
-                                android:paddingVertical="2dp"
-                                app:layout_constraintTop_toBottomOf="@id/post_author_name"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
+                                android:orientation="vertical"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                >
+                                app:layout_constraintEnd_toStartOf="@+id/post_options"
+                                app:layout_constraintStart_toEndOf="@+id/post_author_imgholder"
+                                app:layout_constraintTop_toTopOf="parent">
 
-                            </TextView>
+                                <TextView
+                                    android:id="@+id/post_author_name"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:paddingHorizontal="3dp"
+                                    android:paddingVertical="2dp"
+                                    android:text=""
+                                    android:textAlignment="textStart"
+                                    android:textColor="@color/black"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    app:layout_constraintBottom_toTopOf="@id/post_timestamp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <TextView
+                                    android:id="@+id/post_timestamp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:paddingHorizontal="3dp"
+                                    android:paddingVertical="2dp"
+                                    android:text=""
+                                    android:textAlignment="textStart"
+                                    android:textColor="@color/light_gray"
+                                    android:textSize="14sp"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/post_author_name">
+
+                                </TextView>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                            <Button
+                                android:id="@+id/post_options"
+                                style="?android:attr/borderlessButtonStyle"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_marginVertical="1dp"
+                                android:background="@drawable/bg_options"
+                                android:gravity="center"
+                                android:text="@string/horizontal_ellipsize"
+                                android:textAlignment="center"
+                                android:textAppearance="?android:textAppearanceLarge"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="25sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/post_author_text"
+                                app:layout_constraintTop_toTopOf="parent" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <Button
-                            android:id="@+id/post_options"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_marginHorizontal="5dp"
-                            android:layout_marginVertical="1dp"
-                            android:text="@string/horizontal_ellipsize"
-                            android:textSize="25sp"
+                        <TextView
+                            android:id="@+id/post_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:text=""
+                            android:textAlignment="textStart"
+                            android:textColor="@color/black"
+                            android:textIsSelectable="true"
+                            android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textAlignment="center"
-                            android:gravity="center"
-                            android:textColor="@color/dark_gray"
-                            android:background="@drawable/bg_options"
-                            android:textAppearance="?android:textAppearanceLarge"
+                            app:layout_constraintBottom_toTopOf="@id/post_body"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/post_author_text"
-                            app:layout_constraintTop_toTopOf="parent"
-                            style="?android:attr/borderlessButtonStyle"
-                            />
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/post_header" />
+
+                        <TextView
+                            android:id="@+id/post_body"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autoLink="all"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:text=""
+                            android:textAlignment="textStart"
+                            android:textColor="@color/black"
+                            android:textIsSelectable="true"
+                            android:textSize="16sp"
+                            app:layout_constraintBottom_toTopOf="@id/post_img"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/post_title" />
+
+                        <ImageView
+                            android:id="@+id/post_img"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:maxHeight="500dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:scaleType="fitCenter"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toTopOf="@id/post_replies_count"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/post_body" />
+
+                        <TextView
+                            android:id="@+id/post_replies_count"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_lightest_gray"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:text=""
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/light_gray"
+                            android:textSize="14sp"
+                            app:layout_constraintBottom_toTopOf="@id/recycler_replies_view"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/post_img" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recycler_replies_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:padding="10dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/post_replies_count"
+                            tools:listitem="@layout/reply_single" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <TextView
-                        android:id="@+id/post_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textAlignment="textStart"
-                        android:textIsSelectable="true"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="5dp"
-                        app:layout_constraintTop_toBottomOf="@+id/post_header"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/post_body"
-                        />
+                </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/post_body"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textAlignment="textStart"
-                        android:autoLink="all"
-                        android:textIsSelectable="true"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="5dp"
-                        app:layout_constraintTop_toBottomOf="@+id/post_title"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/post_img"
-                        />
-
-                    <ImageView
-                        android:id="@+id/post_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="500dp"
-                        android:paddingVertical="5dp"
-                        android:paddingHorizontal="10dp"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitCenter"
-                        android:visibility="gone"
-                        app:layout_constraintTop_toBottomOf="@+id/post_body"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/post_replies_count"
-                        />
-
-                    <TextView
-                        android:id="@+id/post_replies_count"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp"
-                        android:textAlignment="textEnd"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="5dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/bg_lightest_gray"
-                        app:layout_constraintTop_toBottomOf="@+id/post_img"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/recycler_replies_view"
-                        />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recycler_replies_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/post_replies_count"
-                    />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
 
             <LinearLayout
-            android:id="@+id/bottom_tool"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:layout_gravity="bottom"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/top_content"
-            android:orientation="horizontal" >
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/bottom_tool"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom" >
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/top_content">
 
-                <EditText
-                    android:id="@+id/add_reply_body"
-                    android:layout_width="0dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:hint="Write a reply..."
-                    android:maxLines="5"
-                    android:textSize="16sp"
-                    android:maxLength="500"
-                    android:textAlignment="textStart"
-                    android:gravity="top|start"
-                    android:textColor="@color/black"
-                    android:background="@drawable/bg_single_post"
-                    android:paddingVertical="10dp"
-                    android:paddingHorizontal="10dp"
-                    android:layout_marginEnd="10dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/add_reply_btn"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    />
+                    android:layout_gravity="bottom">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/add_reply_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_button_post"
-                    android:text="ADD REPLY"
-                    android:textColor="@color/white"
-                    android:enabled="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    />
+                    <EditText
+                        android:id="@+id/add_reply_body"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_single_post"
+                        android:gravity="top|start"
+                        android:hint="Write a reply..."
+                        android:maxLength="500"
+                        android:maxLines="5"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="10dp"
+                        android:text=""
+                        android:textAlignment="textStart"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/add_reply_btn"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/add_reply_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_button_post"
+                        android:enabled="false"
+                        android:text="ADD ANSWER"
+                        android:textColor="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

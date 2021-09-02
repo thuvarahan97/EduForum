@@ -102,16 +102,14 @@ public class NotificationsFragment extends Fragment {
                             DocumentReference post = (DocumentReference) data.get("post");
                             DocumentReference author = (DocumentReference) data.get("author");
                             Timestamp timestamp = (Timestamp) data.get("timestamp");
-                            boolean canDisplay = (boolean) data.get("canDisplay");
                             boolean isChecked = (boolean) data.get("isChecked");
 
                             assert post != null;
                             assert author != null;
                             assert timestamp != null;
-                            if (canDisplay) {
-                                Notification notification = new Notification(id, post, author, timestamp, isChecked);
-                                notifications.add(notification);
-                            }
+
+                            Notification notification = new Notification(id, post, author, timestamp, isChecked);
+                            notifications.add(notification);
                         }
                         stopRefreshing();
                         showRecyclerView();

@@ -1,195 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/top_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:isScrollContainer="false"
+        android:fillViewport="true"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/bottom_tool"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clipToPadding="false"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/post_header"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/input_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:orientation="horizontal"
-                android:layout_marginBottom="7dp"
-                >
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/post_author_imgholder"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:src="@drawable/img_default_profile"
-                    app:civ_border_width="0dp"
-                    app:civ_border_color="@color/lighter_gray"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/post_author_text"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/post_author_text"
-                    android:layout_width="0dp"
+                    android:id="@+id/post_header"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="7dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toTopOf="@+id/input_title"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/post_author_imgholder"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:orientation="vertical"
-                    >
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <TextView
-                        android:id="@+id/post_author_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="."
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textAlignment="textStart"
-                        android:paddingHorizontal="3dp"
-                        android:paddingVertical="2dp"
-                        app:layout_constraintBottom_toTopOf="@id/post_author_email"
-                        app:layout_constraintEnd_toEndOf="parent"
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/post_author_imgholder"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:src="@drawable/img_default_profile"
+                        app:civ_border_color="@color/lighter_gray"
+                        app:civ_border_width="0dp"
+                        app:layout_constraintEnd_toStartOf="@id/post_author_text"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/post_author_email"
-                        android:layout_width="match_parent"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/post_author_text"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="."
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp"
-                        android:textAlignment="textStart"
-                        android:paddingHorizontal="3dp"
-                        android:paddingVertical="2dp"
-                        app:layout_constraintTop_toBottomOf="@id/post_author_name"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
+                        android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        >
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/post_author_imgholder"
+                        app:layout_constraintTop_toTopOf="parent">
 
-                    </TextView>
+                        <TextView
+                            android:id="@+id/post_author_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="3dp"
+                            android:paddingVertical="2dp"
+                            android:text="."
+                            android:textAlignment="textStart"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toTopOf="@id/post_author_email"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/post_author_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="3dp"
+                            android:paddingVertical="2dp"
+                            android:text="."
+                            android:textAlignment="textStart"
+                            android:textColor="@color/light_gray"
+                            android:textSize="14sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/post_author_name">
+
+                        </TextView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <EditText
+                    android:id="@+id/input_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@drawable/bg_single_post"
+                    android:hint="Enter Title"
+                    android:maxLength="200"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/input_body"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/post_header" />
+
+                <EditText
+                    android:id="@+id/input_body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@drawable/bg_single_post"
+                    android:gravity="top|start"
+                    android:hint="Write something..."
+                    android:maxLength="1000"
+                    android:maxLines="12"
+                    android:minLines="5"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp"
+                    android:text=""
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@id/post_img"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/input_title" />
+
+                <ImageView
+                    android:id="@+id/post_img"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="500dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/input_body" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <EditText
-                android:id="@+id/input_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:hint="Enter Title"
-                android:maxLength="200"
-                android:singleLine="true"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textAlignment="textStart"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginVertical="5dp"
-                android:paddingVertical="10dp"
-                android:paddingHorizontal="10dp"
-                app:layout_constraintTop_toBottomOf="@+id/post_header"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/input_body"
-                android:background="@drawable/bg_single_post"
-            />
+        </LinearLayout>
 
-            <EditText
-                android:id="@+id/input_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:hint="Write something..."
-                android:minLines="5"
-                android:maxLines="12"
-                android:maxLength="1000"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textAlignment="textStart"
-                android:gravity="top|start"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginVertical="5dp"
-                android:paddingVertical="10dp"
-                android:paddingHorizontal="10dp"
-                app:layout_constraintTop_toBottomOf="@+id/input_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/post_img"
-                android:background="@drawable/bg_single_post"
-                />
-
-            <ImageView
-                android:id="@+id/post_img"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxHeight="500dp"
-                android:paddingVertical="5dp"
-                android:paddingHorizontal="10dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@+id/input_body"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="parent"
-                />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/bottom_tool"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
         android:paddingHorizontal="10dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_gravity="bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_content"
-        android:orientation="horizontal" >
+        app:layout_constraintTop_toBottomOf="@id/top_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom" >
+            android:layout_gravity="bottom">
 
             <!--<TextView
                 android:id="@+id/tv1"
@@ -210,23 +203,21 @@
                 android:layout_height="wrap_content"
                 android:text="CHOOSE IMAGE"
                 android:textColor="@color/black"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/add_post_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_button_post"
+                android:enabled="false"
                 android:text="ADD QUESTION"
                 android:textColor="@color/white"
-                android:enabled="false"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,5 +1,6 @@
 package com.thuvarahan.eduforum.ui.notifications;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -148,6 +150,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                 DocumentReference authorRef = (DocumentReference) result.get("postAuthor");
                                 Timestamp timestamp = (Timestamp) result.get("timestamp");
                                 ArrayList<String> images = new ArrayList<>((List<String>) result.get("postImages"));
+                                boolean canDisplay = (boolean) result.get("canDisplay");
 
                                 assert authorRef != null;
                                 assert timestamp != null;
@@ -165,10 +168,14 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                 });
 
                                 //-------- Go to Post Activity -------//
-                                Post _post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
-                                Intent intent = new Intent(view.getContext(), PostActivity.class);
-                                intent.putExtra("post", _post);
-                                view.getContext().startActivity(intent);
+                                if (canDisplay) {
+                                    Post _post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
+                                    Intent intent = new Intent(view.getContext(), PostActivity.class);
+                                    intent.putExtra("post", _post);
+                                    view.getContext().startActivity(intent);
+                                } else {
+                                    Toast.makeText(view.getContext(), "Cannot open! Question has been deleted.", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         } else {
                             progressDialog.dismiss();
@@ -215,6 +222,8 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
             public void onClick(View view) {
                 bottomSheetDialog.dismiss();
 
+                View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+
                 final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
                 progressDialog.setCancelable(false);
                 progressDialog.show();
@@ -227,10 +236,10 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             removeItemAt(position);
-                            Snackbar.make(view, context.getResources().getString(R.string.notification_removed), Snackbar.LENGTH_LONG)
+                            Snackbar.make(rootView, context.getResources().getString(R.string.notification_removed), Snackbar.LENGTH_LONG)
                             .show();
                         } else {
-                            Snackbar.make(view, context.getResources().getString(R.string.notification_not_removed), Snackbar.LENGTH_LONG)
+                            Snackbar.make(rootView, context.getResources().getString(R.string.notification_not_removed), Snackbar.LENGTH_LONG)
                             .setBackgroundTint(Color.RED)
                             .setTextColor(Color.WHITE)
                             .show();
