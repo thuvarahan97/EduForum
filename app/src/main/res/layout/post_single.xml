@@ -118,6 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="all"
+        android:textColorLink="@color/purple_3"
         android:ellipsize="end"
         android:maxLines="4"
         android:paddingHorizontal="10dp"

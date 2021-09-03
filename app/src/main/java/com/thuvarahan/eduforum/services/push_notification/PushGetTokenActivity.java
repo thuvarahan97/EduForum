@@ -14,7 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.huawei.agconnect.config.AGConnectServicesConfig;
 import com.huawei.hms.aaid.HmsInstanceId;
 import com.huawei.hms.common.ApiException;
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.R;
 
 import java.util.HashMap;

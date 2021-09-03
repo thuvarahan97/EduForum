@@ -14,18 +14,23 @@
  *    limitations under the License.
  */
 
-package com.thuvarahan.eduforum;
+package com.thuvarahan.eduforum.utils;
 
 import android.util.Log;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
+import com.huawei.hms.mlsdk.langdetect.MLDetectedLang;
+import com.huawei.hms.mlsdk.langdetect.MLLangDetectorFactory;
+import com.huawei.hms.mlsdk.langdetect.local.MLLocalLangDetector;
+import com.huawei.hms.mlsdk.langdetect.local.MLLocalLangDetectorSetting;
 import com.huawei.hms.mlsdk.translate.MLTranslateLanguage;
 import com.huawei.hms.mlsdk.translate.MLTranslatorFactory;
 import com.huawei.hms.mlsdk.translate.cloud.MLRemoteTranslateSetting;
 import com.huawei.hms.mlsdk.translate.cloud.MLRemoteTranslator;
 
+import java.util.List;
 import java.util.Set;
 
 public class LanguageTranslation {
@@ -39,7 +44,7 @@ public class LanguageTranslation {
     private static void remoteTranslator(String sourceText, IRemoteTranslationTask remoteTranslationTask) {
         // Create an analyzer. You can customize the analyzer by creating MLRemoteTranslateSetting
         MLRemoteTranslateSetting setting =
-                new MLRemoteTranslateSetting.Factory().setTargetLangCode("zh").create();
+                new MLRemoteTranslateSetting.Factory().setTargetLangCode("en").create();
         MLRemoteTranslator remoteTranslator = MLTranslatorFactory.getInstance().getRemoteTranslator(setting);
         // Use default parameter settings.
         // analyzer = MLTranslatorFactory.getInstance().getRemoteTranslator();
@@ -59,7 +64,7 @@ public class LanguageTranslation {
         });
     }
 
-    private static void queryAllLanguages() {
+    public static void queryAllLanguages() {
         MLTranslateLanguage.getCloudAllLanguages().addOnSuccessListener(
                 new OnSuccessListener<Set<String>>() {
                     @Override
@@ -80,11 +85,26 @@ public class LanguageTranslation {
         return text.chars().anyMatch(c -> Character.UnicodeBlock.of(c) == Character.UnicodeBlock.TAMIL);
     }
 
+    private static void detectLanguage(final String sourceText) {
+        MLLangDetectorFactory factory = MLLangDetectorFactory.getInstance();
+        MLLocalLangDetectorSetting setting = new MLLocalLangDetectorSetting.Factory()
+                .setTrustedThreshold(0.01f)
+                .create();
+        MLLocalLangDetector mlLocalLangDetector = factory.getLocalLangDetector(setting);
+        Task<List<MLDetectedLang>> probabilityDetectTask = mlLocalLangDetector.probabilityDetect(sourceText);
+        probabilityDetectTask.addOnSuccessListener(new OnSuccessListener<List<MLDetectedLang>>() {//
+            @Override
+            public void onSuccess(List<MLDetectedLang> mlDetectedLangs) {
+                
+            }
+        });
+    }
+
     public static void getTranslatedText(String originalText, ITranslationTask translationTask) {
         remoteTranslator(originalText, new IRemoteTranslationTask() {
             @Override
             public void onTranslated(String text) {
-                if (!text.equals(originalText)) {
+                if (!((text.trim()).equals(originalText.trim()))) {
                     translationTask.onResult(true, text);
                 } else {
                     translationTask.onResult(false, null);

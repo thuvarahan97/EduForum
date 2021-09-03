@@ -1,6 +1,6 @@
 package com.thuvarahan.eduforum.ui.login;
 
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import java.util.Date;
 

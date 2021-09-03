@@ -22,7 +22,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
+import com.thuvarahan.eduforum.utils.LanguageTranslation;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
@@ -60,6 +61,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         private final TextView author;
         private final TextView timestamp;
         private final Button btnOptions;
+        private final LinearLayout bodyTranslated;
 
         public ViewHolder(View view) {
             super(view);
@@ -69,6 +71,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
             author = (TextView) view.findViewById(R.id.reply_author_name);
             timestamp = (TextView) view.findViewById(R.id.reply_timestamp);
             btnOptions = (Button) view.findViewById(R.id.reply_options);
+            bodyTranslated = (LinearLayout) view.findViewById(R.id.reply_body_translated);
         }
     }
 
@@ -129,6 +132,43 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
             }
         });
 
+        // Show body text translation
+        try {
+            if (holder.body != null && !holder.body.getText().toString().trim().isEmpty()) {
+                LanguageTranslation.getTranslatedText(holder.body.getText().toString().trim(), new LanguageTranslation.ITranslationTask() {
+                    @Override
+                    public void onResult(boolean isTranslated, String text) {
+                        if (isTranslated) {
+                            holder.bodyTranslated.setVisibility(View.VISIBLE);
+                            View innerTranslationView = holder.bodyTranslated.getChildAt(0);
+                            TextView tvToggleTranslation = innerTranslationView.findViewById(R.id.tv_toggle_translation);
+                            LinearLayout llTranslatedText = innerTranslationView.findViewById(R.id.ll_translatedText);
+                            TextView tvTranslatedText = innerTranslationView.findViewById(R.id.tv_TranslatedText);
+
+                            if (tvToggleTranslation != null && llTranslatedText != null && tvTranslatedText != null) {
+                                tvToggleTranslation.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (llTranslatedText.getVisibility() == View.GONE) {
+                                            tvTranslatedText.setText(text);
+                                            tvToggleTranslation.setText("Hide translation");
+                                            llTranslatedText.setVisibility(View.VISIBLE);
+                                        } else {
+                                            tvToggleTranslation.setText("Show translation");
+                                            llTranslatedText.setVisibility(View.GONE);
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            holder.bodyTranslated.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // total number of rows
@@ -145,13 +185,11 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
     public void removeItemAt(int position) {
         mData.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mData.size());
     }
 
     public void replaceItemAt(int position, Reply reply) {
         mData.set(position, reply);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mData.size());
+        notifyItemChanged(position);
     }
 
     void showReplyOptionsBottomSheetDialog(Context context, Reply reply, int position) {

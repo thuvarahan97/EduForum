@@ -1,7 +1,6 @@
 package com.thuvarahan.eduforum;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -53,6 +52,8 @@ import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
 import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
+import com.thuvarahan.eduforum.utils.CustomUtils;
+import com.thuvarahan.eduforum.utils.LanguageTranslation;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -168,7 +169,7 @@ public class PostActivity extends AppCompatActivity {
             swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    fetchReplies(getApplicationContext(), db, postID);
+                    recreate();
                 }
             });
 
@@ -217,37 +218,42 @@ public class PostActivity extends AppCompatActivity {
             });
 
             // Show body text translation
-            if (body != null && !body.getText().toString().trim().isEmpty()) {
-                LanguageTranslation.getTranslatedText(body.getText().toString().trim(), new LanguageTranslation.ITranslationTask() {
-                    @Override
-                    public void onResult(boolean isTranslated, String text) {
-                        if (isTranslated) {
-                            bodyTranslated.setVisibility(View.VISIBLE);
-                            View innerTranslationView = bodyTranslated.getChildAt(0);
-                            TextView tvToggleTranslation = innerTranslationView.findViewById(R.id.tv_toggle_translation);
-                            LinearLayout llTranslatedText = innerTranslationView.findViewById(R.id.ll_translatedText);
-                            TextView tvTranslatedText = innerTranslationView.findViewById(R.id.tv_TranslatedText);
+            try {
+                if (body != null && !body.getText().toString().trim().isEmpty()) {
+                    LanguageTranslation.getTranslatedText(body.getText().toString().trim(), new LanguageTranslation.ITranslationTask() {
+                        @Override
+                        public void onResult(boolean isTranslated, String text) {
+                            if (isTranslated) {
+                                bodyTranslated.setVisibility(View.VISIBLE);
+                                View innerTranslationView = bodyTranslated.getChildAt(0);
+                                TextView tvToggleTranslation = innerTranslationView.findViewById(R.id.tv_toggle_translation);
+                                LinearLayout llTranslatedText = innerTranslationView.findViewById(R.id.ll_translatedText);
+                                TextView tvTranslatedText = innerTranslationView.findViewById(R.id.tv_TranslatedText);
 
-                            if (tvToggleTranslation != null && llTranslatedText != null && tvTranslatedText != null) {
-                                tvToggleTranslation.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (llTranslatedText.getVisibility() == View.GONE) {
-                                            tvTranslatedText.setText(text);
-                                            tvToggleTranslation.setText("Hide Translation");
-                                            llTranslatedText.setVisibility(View.VISIBLE);
-                                        } else {
-                                            tvToggleTranslation.setText("See Translation");
-                                            llTranslatedText.setVisibility(View.GONE);
+                                if (tvToggleTranslation != null && llTranslatedText != null && tvTranslatedText != null) {
+                                    tvToggleTranslation.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            if (llTranslatedText.getVisibility() == View.GONE) {
+                                                tvTranslatedText.setText(text);
+                                                tvToggleTranslation.setText("Hide translation");
+                                                llTranslatedText.setVisibility(View.VISIBLE);
+
+                                            } else {
+                                                tvToggleTranslation.setText("Show translation");
+                                                llTranslatedText.setVisibility(View.GONE);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
+                            } else {
+                                bodyTranslated.setVisibility(View.GONE);
                             }
-                        } else {
-                            bodyTranslated.setVisibility(View.GONE);
                         }
-                    }
-                });
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else {
             finish();

@@ -4,19 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.view.WindowManager;
 
+import com.huawei.hms.mlsdk.common.MLApplication;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.login.LoginActivity;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,12 +32,18 @@ public class SplashActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
+        try {
+            MLApplication.getInstance().setApiKey("CgB6e3x9I3dW4Yk8J2LuBnQ7lhF9QuJwoWuqJ5aAveg1pIRTsJDaPTijquaWSVaN89lxwioq60+RTZV4qGS4xAL6");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 checkUserLoggedIn();
             }
-        }, 1000);
+        }, 1500);
 
         //-------------- Check Push Token -------------//
         String pushToken = CustomUtils.getLocalTokenData(getApplicationContext());

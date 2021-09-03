@@ -24,7 +24,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.huawei.hms.support.hwid.ui.HuaweiIdAuthButton;
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.MainActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;

@@ -30,7 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
@@ -222,13 +222,11 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
     public void removeItemAt(int position) {
         mData.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mData.size());
     }
 
     public void replaceItemAt(int position, Post post) {
         mData.set(position, post);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mData.size());
+        notifyItemChanged(position);
     }
 
     void showPostOptionsBottomSheetDialog(Context context, Post post, int position) {

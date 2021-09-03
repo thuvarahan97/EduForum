@@ -27,7 +27,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.thuvarahan.eduforum.CustomUtils;
 import com.thuvarahan.eduforum.NewPostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.post.Post;

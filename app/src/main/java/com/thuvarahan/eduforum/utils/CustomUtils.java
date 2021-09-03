@@ -1,4 +1,4 @@
-package com.thuvarahan.eduforum;
+package com.thuvarahan.eduforum.utils;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -7,7 +7,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.okhttp.Callback;
@@ -17,6 +20,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
+import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
 import java.io.IOException;
@@ -123,4 +127,12 @@ public class CustomUtils {
         return sharedPreferences.getString("token", "");
     }
 
+    public static void makeEllipsizedTextView(final TextView textView, int maxLine) {
+        if (maxLine > 0 && textView.getLineCount() >= maxLine) {
+            int lineEndIndex = textView.getLayout().getLineEnd(maxLine - 1);
+            String text = textView.getText().subSequence(0, lineEndIndex) + "...";
+            textView.invalidate();
+            textView.setText(text);
+        }
+    }
 }

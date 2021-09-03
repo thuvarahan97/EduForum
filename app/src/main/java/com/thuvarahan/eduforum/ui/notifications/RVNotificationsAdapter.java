@@ -3,7 +3,6 @@ package com.thuvarahan.eduforum.ui.notifications;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.text.Html;
@@ -28,16 +27,13 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.thuvarahan.eduforum.CustomUtils;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.notification.Notification;
 import com.thuvarahan.eduforum.data.post.Post;
-import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -208,7 +204,6 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
     public void removeItemAt(int position) {
         mData.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mData.size());
     }
 
     void showNotificationOptionsBottomSheetDialog(Context context, Notification notification, int position) {

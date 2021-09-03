@@ -7,18 +7,11 @@
 package com.thuvarahan.eduforum.services.push_notification;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.huawei.hms.push.HmsMessageService;
 import com.huawei.hms.push.RemoteMessage;
-import com.thuvarahan.eduforum.CustomUtils;
-
-import java.util.HashMap;
 
 public class PushMsgService extends HmsMessageService {
     private static final String TAG = "PushService";
