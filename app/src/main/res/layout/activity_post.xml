@@ -152,6 +152,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:autoLink="all"
+                            android:textColorLink="@color/purple_3"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="5dp"
                             android:text=""
@@ -159,10 +160,26 @@
                             android:textColor="@color/black"
                             android:textIsSelectable="true"
                             android:textSize="16sp"
-                            app:layout_constraintBottom_toTopOf="@id/post_img"
+                            app:layout_constraintBottom_toTopOf="@id/post_body_translated"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/post_title" />
+
+                        <LinearLayout
+                            android:id="@+id/post_body_translated"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toTopOf="@id/post_img"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/post_body" >
+
+                            <include layout="@layout/content_translation" />
+
+                        </LinearLayout>
 
                         <ImageView
                             android:id="@+id/post_img"
@@ -177,7 +194,7 @@
                             app:layout_constraintBottom_toTopOf="@id/post_replies_count"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/post_body" />
+                            app:layout_constraintTop_toBottomOf="@+id/post_body_translated" />
 
                         <TextView
                             android:id="@+id/post_replies_count"
