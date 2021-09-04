@@ -1,5 +1,6 @@
 package com.thuvarahan.eduforum.ui.notifications;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
@@ -27,13 +29,13 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.notification.Notification;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -108,17 +110,27 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                     if (doc != null && doc.getData() != null && doc.getData().get("displayName") != null) {
                         String authorVal = doc.getData().get("displayName").toString();
                         holder.body.setText(getNotificationBody(authorVal, holder.itemView.getContext().getResources().getString(R.string.notif_body_answered)));
-                    }
-                    else {
+
+                        _notification.post.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @SuppressLint("SetTextI18n")
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot != null) {
+                                    String title = Objects.requireNonNull(documentSnapshot.get("postTitle")).toString();
+                                    if (!title.trim().isEmpty()) {
+                                        holder.body.setText(holder.body.getText().toString().substring(0, holder.body.getText().toString().length()-1) + " \'" + ((title.length() > 50) ? title.substring(0, 50) + "..." : title) + "\'.");
+                                    }
+                                }
+                            }
+                        });
+                    } else {
                         removeItemAt(position);
                     }
-                }
-                else {
+                } else {
                     removeItemAt(position);
                 }
             }
         });
-
 
         //---------------- Convert Date Format ---------------//
         String date = CustomUtils.formatTimestamp(_notification.timestamp);
@@ -133,51 +145,51 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                 progressDialog.show();
 
                 _notification.post.get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot result = task.getResult();
-                            if (result != null && result.exists()) {
-                                progressDialog.dismiss();
-                                String id = _notification.post.getId();
-                                String title = Objects.requireNonNull(result.get("postTitle")).toString();
-                                String body = Objects.requireNonNull(result.get("postBody")).toString();
-                                DocumentReference authorRef = (DocumentReference) result.get("postAuthor");
-                                Timestamp timestamp = (Timestamp) result.get("timestamp");
-                                ArrayList<String> images = new ArrayList<>((List<String>) result.get("postImages"));
-                                boolean canDisplay = (boolean) result.get("canDisplay");
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot result = task.getResult();
+                                    if (result != null && result.exists()) {
+                                        progressDialog.dismiss();
+                                        String id = _notification.post.getId();
+                                        String title = Objects.requireNonNull(result.get("postTitle")).toString();
+                                        String body = Objects.requireNonNull(result.get("postBody")).toString();
+                                        DocumentReference authorRef = (DocumentReference) result.get("postAuthor");
+                                        Timestamp timestamp = (Timestamp) result.get("timestamp");
+                                        ArrayList<String> images = new ArrayList<>((List<String>) result.get("postImages"));
+                                        boolean canDisplay = (boolean) result.get("canDisplay");
 
-                                assert authorRef != null;
-                                assert timestamp != null;
+                                        assert authorRef != null;
+                                        assert timestamp != null;
 
-                                //--------- Set notification as checked --------//
-                                db.collection("users").document(currentUserID)
-                                .collection("notifications")
-                                .document(_notification.id)
-                                .update("isChecked", true)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        holder.notif.setBackgroundColor(Color.WHITE);
+                                        //--------- Set notification as checked --------//
+                                        db.collection("users").document(currentUserID)
+                                                .collection("notifications")
+                                                .document(_notification.id)
+                                                .update("isChecked", true)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        holder.notif.setBackgroundColor(Color.WHITE);
+                                                    }
+                                                });
+
+                                        //-------- Go to Post Activity -------//
+                                        if (canDisplay) {
+                                            Post _post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
+                                            Intent intent = new Intent(view.getContext(), PostActivity.class);
+                                            intent.putExtra("post", _post);
+                                            view.getContext().startActivity(intent);
+                                        } else {
+                                            Toast.makeText(view.getContext(), "Cannot open! Question has been deleted.", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                });
-
-                                //-------- Go to Post Activity -------//
-                                if (canDisplay) {
-                                    Post _post = new Post(id, title, body, authorRef.getPath(), timestamp, images);
-                                    Intent intent = new Intent(view.getContext(), PostActivity.class);
-                                    intent.putExtra("post", _post);
-                                    view.getContext().startActivity(intent);
                                 } else {
-                                    Toast.makeText(view.getContext(), "Cannot open! Question has been deleted.", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
                                 }
                             }
-                        } else {
-                            progressDialog.dismiss();
-                        }
-                    }
-                });
+                        });
             }
         });
 
@@ -224,24 +236,24 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                 progressDialog.show();
 
                 db.collection("users").document(currentUserID)
-                .collection("notifications").document(notification.id)
-                .update("canDisplay", false)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            removeItemAt(position);
-                            Snackbar.make(rootView, context.getResources().getString(R.string.notification_removed), Snackbar.LENGTH_LONG)
-                            .show();
-                        } else {
-                            Snackbar.make(rootView, context.getResources().getString(R.string.notification_not_removed), Snackbar.LENGTH_LONG)
-                            .setBackgroundTint(Color.RED)
-                            .setTextColor(Color.WHITE)
-                            .show();
-                        }
-                        progressDialog.dismiss();
-                    }
-                });
+                        .collection("notifications").document(notification.id)
+                        .update("canDisplay", false)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    removeItemAt(position);
+                                    Snackbar.make(rootView, context.getResources().getString(R.string.notification_removed), Snackbar.LENGTH_LONG)
+                                            .show();
+                                } else {
+                                    Snackbar.make(rootView, context.getResources().getString(R.string.notification_not_removed), Snackbar.LENGTH_LONG)
+                                            .setBackgroundTint(Color.RED)
+                                            .setTextColor(Color.WHITE)
+                                            .show();
+                                }
+                                progressDialog.dismiss();
+                            }
+                        });
             }
         });
 

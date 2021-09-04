@@ -83,6 +83,7 @@ dependencies {
     implementation 'com.huawei.hms:ml-computer-translate-model:2.2.0.300'
     implementation 'com.huawei.hms:ml-computer-language-detection:2.2.0.300'
     implementation 'com.huawei.hms:ml-computer-language-detection-model:2.2.0.300'
+    implementation 'com.huawei.hms:filemanager:5.0.4.300'
 }
 
 apply plugin: 'com.huawei.agconnect'

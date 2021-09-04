@@ -39,6 +39,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
@@ -117,6 +118,8 @@ public class PostActivity extends AppCompatActivity {
         currentUserID = user.getUserID();
         currentUserDisplayName = user.getDisplayName();
 
+        CustomUtils.checkStoragePermission(PostActivity.this);
+
         if (_post != null) {
             postID = _post.id;
             title.setText(_post.title);
@@ -146,12 +149,12 @@ public class PostActivity extends AppCompatActivity {
             timestamp.setText(date);
 
             //----------------- Display Image ------------//
-            URL url = null;
+            URL imgUrl = null;
             if (_post.images.size() > 0) {
                 try {
-                    url = new URL(_post.images.get(0));
+                    imgUrl = new URL(_post.images.get(0));
 
-                    Picasso.get().load(url.toString()).into(image);
+                    Picasso.get().load(imgUrl.toString()).into(image);
                     image.setVisibility(View.VISIBLE);
                 } catch (MalformedURLException e) {
                     image.setVisibility(View.GONE);
@@ -217,6 +220,18 @@ public class PostActivity extends AppCompatActivity {
                 }
             });
 
+            if (image.getVisibility() == View.VISIBLE) {
+                URL finalImgUrl = imgUrl;
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(PostActivity.this.getCurrentFocus().getWindowToken(), 0);
+                        CustomUtils.showFullImage(PostActivity.this, image.getDrawable(), finalImgUrl);
+                    }
+                });
+            }
+
             // Show body text translation
             try {
                 if (body != null && !body.getText().toString().trim().isEmpty()) {
@@ -267,6 +282,7 @@ public class PostActivity extends AppCompatActivity {
                 .document(postID)
                 .collection("replies")
                 .whereEqualTo("canDisplay", true)
+                .orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @SuppressLint("SetTextI18n")

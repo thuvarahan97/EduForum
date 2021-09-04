@@ -126,7 +126,7 @@ public class ImageActivity extends AppCompatActivity {
         String fileName = "temp_img";
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            image.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
             FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
             fo.write(bytes.toByteArray());
             fo.close();

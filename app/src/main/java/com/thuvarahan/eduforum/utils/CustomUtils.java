@@ -1,29 +1,41 @@
 package com.thuvarahan.eduforum.utils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
+import android.os.Build;
+import android.os.Environment;
 import android.text.format.DateFormat;
-import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
+import com.huawei.hms.network.file.api.GlobalRequestConfig;
+import com.huawei.hms.network.file.api.Progress;
+import com.huawei.hms.network.file.api.Response;
+import com.huawei.hms.network.file.api.Result;
+import com.huawei.hms.network.file.api.exception.InterruptedException;
+import com.huawei.hms.network.file.api.exception.NetworkException;
+import com.huawei.hms.network.file.download.api.DownloadManager;
+import com.huawei.hms.network.file.download.api.FileRequestCallback;
+import com.huawei.hms.network.file.download.api.GetRequest;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 
-import java.io.IOException;
+import java.io.Closeable;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
@@ -32,6 +44,8 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
+import static androidx.core.app.ActivityCompat.requestPermissions;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 public class CustomUtils {
     public static Drawable LoadImageFromUrl(String url) {
@@ -81,7 +95,7 @@ public class CustomUtils {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         //Yes button clicked
                         alertDialogTask.onPressedYes(dialog);
@@ -98,10 +112,10 @@ public class CustomUtils {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialog);
         builder
 //        .setTitle(title)
-        .setMessage(message).setPositiveButton(yesOption, dialogClickListener)
-        .setNegativeButton(noOption, dialogClickListener)
-        .setCancelable(false)
-        .show();
+                .setMessage(message).setPositiveButton(yesOption, dialogClickListener)
+                .setNegativeButton(noOption, dialogClickListener)
+                .setCancelable(false)
+                .show();
 
         /*AlertDialog dialog = builder.create();
         Button btnNegative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
@@ -134,5 +148,135 @@ public class CustomUtils {
             textView.invalidate();
             textView.setText(text);
         }
+    }
+
+    public static void showFullImage(Context context, Drawable drawable, URL imgUrl) {
+        if (drawable != null && imgUrl != null && !(imgUrl.toString().trim().isEmpty())) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+            LayoutInflater layoutInflater = LayoutInflater.from(context);
+            final View alertView = layoutInflater.inflate(R.layout.content_imagedialog, null);
+            final ImageView postImage = alertView.findViewById(R.id.post_image);
+            postImage.setImageDrawable(drawable);
+            dialog.setView(alertView);
+            dialog.setCancelable(false);
+            dialog.setNegativeButton("Close", null);
+            dialog.setPositiveButton("Download", null);
+            AlertDialog alertDialog = dialog.create();
+            alertDialog.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            alertDialog.show();
+            Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            negativeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+            positiveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String fileName = imgUrl.getPath().substring(imgUrl.getPath().lastIndexOf('/') + 1);
+                    downloadFile(context, imgUrl.toString(), fileName, new IDownloadTask() {
+                        @Override
+                        public void onFinished(boolean isDownloaded) {
+                            if (isDownloaded) {
+                                Toast.makeText(context, "Download completed!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(context, "Download failed!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    alertDialog.dismiss();
+                }
+            });
+        }
+    }
+
+    public static boolean checkStoragePermission(Context context) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+                requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public static void downloadFile(Context context, String fileUrl, String fileName, IDownloadTask downloadTask) {
+        if (checkStoragePermission(context)) {
+            GlobalRequestConfig commonConfig = DownloadManager.newGlobalRequestConfigBuilder()
+                    .retryTimes(1)
+                    .build();
+            DownloadManager downloadManager = new DownloadManager.Builder("downloadManager")
+                    .commonConfig(commonConfig)
+                    .build(context);
+            String downloadFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "EduForum";
+            File path = new File(downloadFilePath);
+            if (!path.exists()) {
+                path.mkdir();
+            }
+            String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+            downloadFilePath += File.separator + "eduforum_" + System.currentTimeMillis() + "." + fileExtension;
+            GetRequest getRequest = DownloadManager.newGetRequestBuilder()
+                    .filePath(downloadFilePath)
+                    .url(fileUrl)
+                    .build();
+            String TAG = "File Download";
+            FileRequestCallback callback = new FileRequestCallback() {
+                @Override
+                public GetRequest onStart(GetRequest request) {
+                    // Set the method to be called when file download starts.
+                    Log.i(TAG, "activity new onStart:" + request);
+                    return request;
+                }
+
+                @Override
+                public void onProgress(GetRequest request, Progress progress) {
+                    // Set the method to be called when the file download progress changes.
+                    Log.i(TAG, "onProgress:" + progress);
+                }
+
+                @Override
+                public void onSuccess(Response<GetRequest, File, Closeable> response) {
+                    // Set the method to be called when file download is completed successfully.
+                    String filePath = "";
+                    if (response.getContent() != null) {
+                        filePath = response.getContent().getAbsolutePath();
+                    }
+                    Log.i(TAG, "onSuccess:" + filePath);
+                    downloadTask.onFinished(true);
+                }
+
+                @Override
+                public void onException(GetRequest request, NetworkException exception, Response<GetRequest, File, Closeable> response) {
+                    // Set the method to be called when a network exception occurs during file download or when the request is paused or canceled.
+                    if (exception instanceof InterruptedException) {
+                        String errorMsg = "onException for paused or canceled";
+                        Log.w(TAG, errorMsg);
+                    } else {
+                        String errorMsg = "onException for:" + request.getId() + " " + Log.getStackTraceString(exception);
+                        Log.e(TAG, errorMsg);
+                    }
+                    downloadTask.onFinished(false);
+                }
+            };
+            Result result = downloadManager.start(getRequest, callback);
+            if (result.getCode() != Result.SUCCESS) {
+                // If the result is Result.SUCCESS, file download starts successfully. Otherwise, file download fails to be started.
+                Log.e(TAG, "start download task failed:" + result.getMessage());
+                downloadTask.onFinished(false);
+            }
+        }
+    }
+
+    private interface IDownloadTask {
+        void onFinished(boolean isDownloaded);
     }
 }
