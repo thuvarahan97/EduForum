@@ -49,13 +49,13 @@ public class LanguageTranslation {
             @Override
             public void onSuccess(String text) {
                 remoteTranslationTask.onTranslated(text);
-                remoteTranslator.stop();
+                stopRemoteTranslator(remoteTranslator);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(Exception e) {
                 e.printStackTrace();
-                remoteTranslator.stop();
+                stopRemoteTranslator(remoteTranslator);
             }
         });
     }
@@ -66,12 +66,11 @@ public class LanguageTranslation {
                     @Override
                     public void onSuccess(Set<String> result) {
                         Log.d("LANG", result.toString());
-                        // Languages supported by on-cloud translation are successfully obtained.
                     }
                 });
     }
 
-    private static void stop(MLRemoteTranslator mlRemoteTranslator) {
+    private static void stopRemoteTranslator(MLRemoteTranslator mlRemoteTranslator) {
         if (mlRemoteTranslator != null) {
             mlRemoteTranslator.stop();
         }
@@ -91,17 +90,22 @@ public class LanguageTranslation {
         probabilityDetectTask.addOnSuccessListener(new OnSuccessListener<List<MLDetectedLang>>() {//
             @Override
             public void onSuccess(List<MLDetectedLang> mlDetectedLangs) {
-                System.out.println(mlDetectedLangs.toString());
                 remoteLanguageDetectionTask.onResult((mlDetectedLangs.size() <= 1) && (mlDetectedLangs.get(0).getLangCode().equals("en")));
-                mlRemoteLangDetector.stop();
+                stopRemoteLanguageDetector(mlRemoteLangDetector);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(Exception e) {
                 e.printStackTrace();
-                mlRemoteLangDetector.stop();
+                stopRemoteLanguageDetector(mlRemoteLangDetector);
             }
         });
+    }
+
+    private static void stopRemoteLanguageDetector(MLRemoteLangDetector mlRemoteLangDetector) {
+        if (mlRemoteLangDetector != null) {
+            mlRemoteLangDetector.stop();
+        }
     }
 
     public static void getTranslatedText(String originalText, ITranslationTask translationTask) {
