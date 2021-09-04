@@ -365,7 +365,7 @@ public class NewPostActivity extends AppCompatActivity {
                 intent.putExtra("imagePath", data.getData().toString());
                 startActivityIfNeeded(intent, IMAGE_ACTIVITY_REQUEST_CODE);
             } else {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
             }
         }
 

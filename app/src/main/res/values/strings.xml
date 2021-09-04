@@ -66,7 +66,7 @@
     <string name="failed_to_load_image">Failed to load the image</string>
     <string name="no_questions_available">No questions available.</string>
     <string name="no_notifications_available">No notifications available.</string>
-    <string name="notif_body_answered"> has answered your question.</string>
+    <string name="notif_body_answered"> has answered your question</string>
     <string name="remove_notification">Remove this notification</string>
     <string name="notification_removed">Notification removed.</string>
     <string name="notification_not_removed">Unable to remove this notification at the moment.</string>

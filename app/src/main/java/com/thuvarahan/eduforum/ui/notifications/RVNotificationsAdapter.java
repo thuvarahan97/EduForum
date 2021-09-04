@@ -109,7 +109,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                     DocumentSnapshot doc = task.getResult();
                     if (doc != null && doc.getData() != null && doc.getData().get("displayName") != null) {
                         String authorVal = doc.getData().get("displayName").toString();
-                        holder.body.setText(getNotificationBody(authorVal, holder.itemView.getContext().getResources().getString(R.string.notif_body_answered)));
+                        holder.body.setText(getNotificationBody(authorVal, holder.itemView.getContext().getResources().getString(R.string.notif_body_answered), null));
 
                         _notification.post.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @SuppressLint("SetTextI18n")
@@ -118,7 +118,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                 if (documentSnapshot != null) {
                                     String title = Objects.requireNonNull(documentSnapshot.get("postTitle")).toString();
                                     if (!title.trim().isEmpty()) {
-                                        holder.body.setText(holder.body.getText().toString().substring(0, holder.body.getText().toString().length()-1) + " \'" + ((title.length() > 50) ? title.substring(0, 50) + "..." : title) + "\'.");
+                                        holder.body.setText(getNotificationBody(authorVal, holder.itemView.getContext().getResources().getString(R.string.notif_body_answered), title));
                                     }
                                 }
                             }
@@ -260,8 +260,12 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
         bottomSheetDialog.show();
     }
 
-    Spanned getNotificationBody(String boldText, String normalText) {
-        return Html.fromHtml("<b>" + boldText + "</b> " + normalText);
+    Spanned getNotificationBody(String boldText1, String normalText, String boldText2) {
+        if (boldText2 == null) {
+            return Html.fromHtml("<b>" + boldText1 + "</b> " + normalText + ".", Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml("<b>" + boldText1 + "</b> " + normalText + " <b><i>" + boldText2 + "</i></b>.", Html.FROM_HTML_MODE_LEGACY);
+        }
     }
 
 }
