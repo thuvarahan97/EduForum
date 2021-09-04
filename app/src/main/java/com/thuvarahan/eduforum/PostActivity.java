@@ -5,13 +5,19 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -42,6 +48,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
@@ -56,12 +66,18 @@ import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
 import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.utils.LanguageTranslation;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -70,6 +86,9 @@ public class PostActivity extends AppCompatActivity {
     View rootView;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
 
     ArrayList<Reply> replies = new ArrayList<Reply>();
 
@@ -83,6 +102,7 @@ public class PostActivity extends AppCompatActivity {
     private ImageView image;
     private TextView replies_count;
     private EditText etReplyBody;
+    private ImageView ivReplyImage;
     private AppCompatButton btnAddReply;
     private Button btnOptions;
     SwipeRefreshLayout swipeRefresh;
@@ -91,6 +111,11 @@ public class PostActivity extends AppCompatActivity {
     String currentUserID = "";
     String currentUserDisplayName = "";
 
+    // request code
+    private final int PICK_IMAGE_REQUEST = 22;
+    private final int IMAGE_ACTIVITY_REQUEST_CODE = 25;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +131,7 @@ public class PostActivity extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.post_img);
         replies_count = (TextView) findViewById(R.id.post_replies_count);
         etReplyBody = (EditText) findViewById(R.id.add_reply_body);
+        ivReplyImage = (ImageView) findViewById(R.id.add_reply_image);
         btnAddReply = (AppCompatButton) findViewById(R.id.add_reply_btn);
         btnOptions = (Button) findViewById(R.id.post_options);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_2);
@@ -200,7 +226,11 @@ public class PostActivity extends AppCompatActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(PostActivity.this.getCurrentFocus().getWindowToken(), 0);
 
-                    saveReply(_post.authorRef);
+                    if (ivReplyImage.getDrawable() != null) {
+                        uploadImage();
+                    } else {
+                        saveReply(_post.authorRef, "");
+                    }
                 }
             });
 
@@ -217,6 +247,33 @@ public class PostActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     showPostOptionsBottomSheetDialog(view.getContext(), _post);
+                }
+            });
+
+            etReplyBody.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    final int DRAWABLE_LEFT = 0;
+                    final int DRAWABLE_TOP = 1;
+                    final int DRAWABLE_RIGHT = 2;
+                    final int DRAWABLE_BOTTOM = 3;
+
+                    if(event.getAction() == MotionEvent.ACTION_UP) {
+                        if(event.getRawX() >= (etReplyBody.getRight() - etReplyBody.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                            selectImage();
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            ivReplyImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ivReplyImage.setImageDrawable(null);
+                    ivReplyImage.setVisibility(View.GONE);
+                    return true;
                 }
             });
 
@@ -313,9 +370,14 @@ public class PostActivity extends AppCompatActivity {
                                 DocumentReference author = (DocumentReference) data.get("replyAuthor");
                                 Timestamp timestamp = (Timestamp) data.get("timestamp");
 
+                                ArrayList<String> images = new ArrayList<>();
+                                if (data.get("replyImages") != null) {
+                                    images = new ArrayList<>((List<String>) data.get("replyImages"));
+                                }
+
                                 assert author != null;
                                 assert timestamp != null;
-                                Reply reply = new Reply(id, body, author, timestamp, postID);
+                                Reply reply = new Reply(id, body, author, timestamp, postID, images);
                                 replies.add(reply);
                                 showRecyclerView();
                                 stopRefreshing();
@@ -365,7 +427,7 @@ public class PostActivity extends AppCompatActivity {
         btnAddReply.setEnabled(replyBody.trim().length() != 0 && replyBody.trim().length() != 0);
     }
 
-    void saveReply(String postAuthorRef) {
+    void saveReply(String postAuthorRef, String imageUrl) {
         if (NetworkChangeReceiver.isOnline(PostActivity.this)) {
             final ProgressDialog progressDialog = new ProgressDialog(PostActivity.this, R.style.ProgressDialogSpinnerOnly);
             progressDialog.setCancelable(false);
@@ -378,6 +440,12 @@ public class PostActivity extends AppCompatActivity {
             reply.put("replyAuthor", replyAuthor);
             reply.put("timestamp", FieldValue.serverTimestamp());
             reply.put("canDisplay", true);
+
+            ArrayList<String> images = new ArrayList<String>();
+            if (!imageUrl.equals("")) {
+                images.add(imageUrl);
+            }
+            reply.put("replyImages", images);
 
             String TAG = "Saving New Reply: ";
 
@@ -457,6 +525,122 @@ public class PostActivity extends AppCompatActivity {
     void stopRefreshing() {
         if (swipeRefresh.isRefreshing()) {
             swipeRefresh.setRefreshing(false);
+        }
+    }
+
+    // Select Image method
+    private void selectImage() {
+        // Defining Implicit Intent to mobile gallery
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityIfNeeded(
+                Intent.createChooser(
+                        intent,
+                        "Select Image from here..."),
+                PICK_IMAGE_REQUEST);
+    }
+
+    void uploadImage() {
+        if (NetworkChangeReceiver.isOnline(PostActivity.this)) {
+            if (ivReplyImage.getDrawable() != null) {
+                final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
+                progressDialog.setTitle("Uploading Image...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                Bitmap imageBitmap = ((BitmapDrawable) ivReplyImage.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] imageData = baos.toByteArray();
+
+                StorageReference ref = storageReference.child("reply_images/" + UUID.randomUUID().toString() + ".jpg");
+                ref.putBytes(imageData)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                progressDialog.dismiss();
+                                                String imageUrl = uri.toString();
+                                                saveReply(_post.authorRef, imageUrl);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                                                        .setBackgroundTint(Color.RED)
+                                                        .setTextColor(Color.WHITE)
+                                                        .show();
+                                            }
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                progressDialog.dismiss();
+                                Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
+                                        .setBackgroundTint(Color.RED)
+                                        .setTextColor(Color.WHITE)
+                                        .show();
+                            }
+                        })
+                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
+                                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                                progressDialog.setMessage((int) progress + "%" + " uploaded");
+                            }
+                        });
+            }
+        } else {
+            Snackbar.make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.RED)
+                    .setTextColor(Color.WHITE)
+                    .show();
+        }
+    }
+
+    // Override onActivityResult method
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //--------------- Choose Image Result --------------//
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+                intent.putExtra("imagePath", data.getData().toString());
+                startActivityIfNeeded(intent, IMAGE_ACTIVITY_REQUEST_CODE);
+            } else {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+            }
+        }
+
+        //--------------- Image Crop Activity Result --------------//
+        if (requestCode == IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                String imagePath = data.getExtras().getString("imagePath");
+                if (imagePath != null) {
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
+                        ivReplyImage.setImageBitmap(bitmap);
+                        ivReplyImage.setVisibility(View.VISIBLE);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+                }
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();
+            }
         }
     }
 

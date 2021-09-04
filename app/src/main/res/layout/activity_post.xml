@@ -152,12 +152,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:autoLink="all"
-                            android:textColorLink="@color/purple_3"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="5dp"
                             android:text=""
                             android:textAlignment="textStart"
                             android:textColor="@color/black"
+                            android:textColorLink="@color/purple_3"
                             android:textIsSelectable="true"
                             android:textSize="16sp"
                             app:layout_constraintBottom_toTopOf="@id/post_body_translated"
@@ -175,7 +175,7 @@
                             app:layout_constraintBottom_toTopOf="@id/post_img"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/post_body" >
+                            app:layout_constraintTop_toBottomOf="@+id/post_body">
 
                             <include layout="@layout/content_translation" />
 
@@ -234,7 +234,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingHorizontal="10dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -242,6 +242,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/top_content">
+
+                <ImageView
+                    android:id="@+id/add_reply_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="top"
+                    android:layout_marginBottom="5dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -254,6 +263,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
                         android:background="@drawable/bg_single_post"
+                        android:drawableEnd="@drawable/ic_add_photo_24"
                         android:gravity="top|start"
                         android:hint="Write a reply..."
                         android:maxLength="500"
@@ -268,6 +278,7 @@
                         app:layout_constraintEnd_toStartOf="@id/add_reply_btn"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
+
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/add_reply_btn"

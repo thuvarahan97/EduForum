@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +24,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
+import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.utils.LanguageTranslation;
 import com.thuvarahan.eduforum.R;
@@ -34,6 +38,8 @@ import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import static com.thuvarahan.eduforum.PostActivity.showEditDialogBox;
@@ -62,6 +68,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         private final TextView timestamp;
         private final Button btnOptions;
         private final LinearLayout bodyTranslated;
+        private final ImageView image;
 
         public ViewHolder(View view) {
             super(view);
@@ -72,6 +79,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
             timestamp = (TextView) view.findViewById(R.id.reply_timestamp);
             btnOptions = (Button) view.findViewById(R.id.reply_options);
             bodyTranslated = (LinearLayout) view.findViewById(R.id.reply_body_translated);
+            image = (ImageView) view.findViewById(R.id.reply_img);
         }
     }
 
@@ -115,6 +123,20 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         String date = CustomUtils.formatTimestamp(_reply.timestamp);
         holder.timestamp.setText(date);
 
+        //----------------- Display Image ------------//
+        URL imgUrl = null;
+        if (_reply.images.size() > 0) {
+            try {
+                imgUrl = new URL(_reply.images.get(0));
+
+                Picasso.get().load(imgUrl.toString()).into(holder.image);
+                holder.image.setVisibility(View.VISIBLE);
+            } catch (MalformedURLException e) {
+                holder.image.setVisibility(View.GONE);
+                e.printStackTrace();
+            }
+        }
+
         //---------------- Enable/Disable options --------------//
         if (currentUserID.equals(_reply.author.getId())) {
             holder.btnOptions.setEnabled(true);
@@ -131,6 +153,18 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
                 showReplyOptionsBottomSheetDialog(view.getContext(), _reply, position);
             }
         });
+
+        if (holder.image.getVisibility() == View.VISIBLE) {
+            URL finalImgUrl = imgUrl;
+            holder.image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(((Activity) view.getContext()).getCurrentFocus().getWindowToken(), 0);
+                    CustomUtils.showFullImage(view.getContext(), holder.image.getDrawable(), finalImgUrl);
+                }
+            });
+        }
 
         // Show body text translation
         try {

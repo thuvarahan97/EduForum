@@ -116,7 +116,11 @@ public class HomeFragment extends Fragment {
                             String body = Objects.requireNonNull(data.get("postBody")).toString();
                             DocumentReference authorRef = (DocumentReference) data.get("postAuthor");
                             Timestamp timestamp = (Timestamp) data.get("timestamp");
-                            ArrayList<String> images = new ArrayList<>((List<String>) data.get("postImages"));
+
+                            ArrayList<String> images = new ArrayList<>();
+                            if (data.get("postImages") != null) {
+                                images = new ArrayList<>((List<String>) data.get("postImages"));
+                            }
 
                             assert authorRef != null;
                             assert timestamp != null;
