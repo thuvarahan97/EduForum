@@ -259,8 +259,8 @@
 
                     <ImageView
                         android:id="@+id/add_reply_image_close"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_marginTop="5dp"

@@ -26,6 +26,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EduForum.Custom">
+        <activity android:name=".ResetPasswordActivity"></activity>
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait"
@@ -80,7 +81,9 @@
                 <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <activity android:name=".services.push_notification.DeeplinkActivity">
+
             <!--
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
