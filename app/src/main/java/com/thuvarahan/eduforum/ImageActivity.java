@@ -1,28 +1,23 @@
 package com.thuvarahan.eduforum;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.huawei.hms.image.vision.crop.CropLayoutView;
-import com.thuvarahan.eduforum.R;
-import com.thuvarahan.eduforum.data.post.Post;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
 
 public class ImageActivity extends AppCompatActivity {
 
@@ -52,12 +47,12 @@ public class ImageActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         try {
             bitmap = MediaStore
-            .Images
-            .Media
-            .getBitmap(
-                getContentResolver(),
-                filePath
-            );
+                    .Images
+                    .Media
+                    .getBitmap(
+                            getContentResolver(),
+                            filePath
+                    );
             cropLayoutView.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,7 +111,7 @@ public class ImageActivity extends AppCompatActivity {
 
         int maxSize = 1080;
 
-        float bitmapRatio = (float)width / (float) height;
+        float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
             height = (int) (width / bitmapRatio);

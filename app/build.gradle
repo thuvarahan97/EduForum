@@ -77,7 +77,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.huawei.hms:image-vision:1.0.3.304'
-    implementation 'com.huawei.hms:image-render:1.0.3.303'
     implementation 'com.huawei.hms:push:5.1.1.301'
     implementation 'com.huawei.hms:hwid:5.3.0.305'
     implementation 'com.huawei.hms:ml-computer-translate:2.2.0.300'
