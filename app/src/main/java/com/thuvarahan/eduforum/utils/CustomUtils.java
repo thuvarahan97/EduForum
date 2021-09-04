@@ -3,12 +3,14 @@ package com.thuvarahan.eduforum.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Environment;
@@ -33,6 +35,7 @@ import com.huawei.hms.network.file.download.api.FileRequestCallback;
 import com.huawei.hms.network.file.download.api.GetRequest;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
+import com.thuvarahan.eduforum.interfaces.IDownloadTask;
 
 import java.io.Closeable;
 import java.io.File;
@@ -276,7 +279,33 @@ public class CustomUtils {
         }
     }
 
-    private interface IDownloadTask {
-        void onFinished(boolean isDownloaded);
+    public static Dialog createProgressDialog(Context context) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context, R.style.ProgressDialogSpinnerOnly);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        final View alertView = layoutInflater.inflate(R.layout.content_progressbar_alertdialog, null);
+        dialogBuilder.setView(alertView);
+        dialogBuilder.setCancelable(false);
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        return dialog;
+//        ProgressBar progressBar = new ProgressBar(context);
+//        WindowManager.LayoutParams wlmp = ((Activity) context).getWindow().getAttributes();
+//        wlmp.gravity = Gravity.CENTER;
+//        LinearLayout layout = new LinearLayout(context);
+//        layout.setOrientation(LinearLayout.VERTICAL);
+//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//        layout.addView(progressBar, params);
+//        Dialog alertDialog = new Dialog(context, R.style.TransparentProgressDialog);
+//        alertDialog.getWindow().setAttributes(wlmp);
+//        alertDialog.setContentView(layout, params);
+//        return alertDialog;
+    }
+
+    public static void toggleWindowInteraction(Activity activity, boolean canInteract) {
+        if (canInteract) {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        } else {
+            activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
     }
 }

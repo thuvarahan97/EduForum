@@ -1,8 +1,9 @@
 package com.thuvarahan.eduforum;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,6 +61,7 @@ import com.thuvarahan.eduforum.data.reply.Reply;
 import com.thuvarahan.eduforum.data.user.User;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
+import com.thuvarahan.eduforum.interfaces.IProgressBarTask;
 import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 import com.thuvarahan.eduforum.services.push_notification.PushNotification;
 import com.thuvarahan.eduforum.ui.posts_replies.RVRepliesAdapter;
@@ -258,8 +260,8 @@ public class PostActivity extends AppCompatActivity {
                     final int DRAWABLE_RIGHT = 2;
                     final int DRAWABLE_BOTTOM = 3;
 
-                    if(event.getAction() == MotionEvent.ACTION_UP) {
-                        if(event.getRawX() >= (etReplyBody.getRight() - etReplyBody.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (event.getRawX() >= (etReplyBody.getRight() - etReplyBody.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
                             selectImage();
                             return true;
                         }
@@ -429,9 +431,25 @@ public class PostActivity extends AppCompatActivity {
 
     void saveReply(String postAuthorRef, String imageUrl) {
         if (NetworkChangeReceiver.isOnline(PostActivity.this)) {
-            final ProgressDialog progressDialog = new ProgressDialog(PostActivity.this, R.style.ProgressDialogSpinnerOnly);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            Dialog progressDialog = CustomUtils.createProgressDialog(PostActivity.this);
+            IProgressBarTask progressBarTask = new IProgressBarTask() {
+                @Override
+                public void onStart() {
+                    if (progressDialog != null && !progressDialog.isShowing()) {
+                        progressDialog.show();
+                        CustomUtils.toggleWindowInteraction(PostActivity.this, false);
+                    }
+                }
+
+                @Override
+                public void onComplete() {
+                    if (progressDialog != null && progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                        CustomUtils.toggleWindowInteraction(PostActivity.this, true);
+                    }
+                }
+            };
+            progressBarTask.onStart();
 
             DocumentReference replyAuthor = db.collection("users").document(currentUserID);
 
@@ -501,7 +519,7 @@ public class PostActivity extends AppCompatActivity {
                             }
                             ivReplyImage.setImageBitmap(null);
                             ivReplyImage.setVisibility(View.GONE);
-                            progressDialog.dismiss();
+                            progressBarTask.onComplete();
                             fetchReplies(getApplicationContext(), db, postID);
                         }
                     })
@@ -509,7 +527,7 @@ public class PostActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.w(TAG, "Error adding document", e);
-                            progressDialog.dismiss();
+                            progressBarTask.onComplete();
                             Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.unable_to_add_answer), Snackbar.LENGTH_LONG)
                                     .setBackgroundTint(Color.RED)
                                     .setTextColor(Color.WHITE);
@@ -546,10 +564,25 @@ public class PostActivity extends AppCompatActivity {
     void uploadImage() {
         if (NetworkChangeReceiver.isOnline(PostActivity.this)) {
             if (ivReplyImage.getDrawable() != null) {
-                final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
-                progressDialog.setTitle("Uploading Image...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                Dialog progressDialog = CustomUtils.createProgressDialog(PostActivity.this);
+                IProgressBarTask progressBarTask = new IProgressBarTask() {
+                    @Override
+                    public void onStart() {
+                        if (progressDialog != null && !progressDialog.isShowing()) {
+                            progressDialog.show();
+                            CustomUtils.toggleWindowInteraction(PostActivity.this, false);
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            CustomUtils.toggleWindowInteraction(PostActivity.this, true);
+                        }
+                    }
+                };
+                progressBarTask.onStart();
 
                 Bitmap imageBitmap = ((BitmapDrawable) ivReplyImage.getDrawable()).getBitmap();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -565,7 +598,7 @@ public class PostActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                             @Override
                                             public void onSuccess(Uri uri) {
-                                                progressDialog.dismiss();
+                                                progressBarTask.onComplete();
                                                 String imageUrl = uri.toString();
                                                 saveReply(_post.authorRef, imageUrl);
                                             }
@@ -573,7 +606,7 @@ public class PostActivity extends AppCompatActivity {
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                progressDialog.dismiss();
+                                                progressBarTask.onComplete();
                                                 Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                                                         .setBackgroundTint(Color.RED)
                                                         .setTextColor(Color.WHITE)
@@ -585,7 +618,7 @@ public class PostActivity extends AppCompatActivity {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                progressDialog.dismiss();
+                                progressBarTask.onComplete();
                                 Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                                         .setBackgroundTint(Color.RED)
                                         .setTextColor(Color.WHITE)
@@ -596,7 +629,7 @@ public class PostActivity extends AppCompatActivity {
                             @Override
                             public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
                                 double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                                progressDialog.setMessage((int) progress + "%" + " uploaded");
+                                progressBarTask.onComplete();
                             }
                         });
             }
@@ -696,9 +729,25 @@ public class PostActivity extends AppCompatActivity {
                             @Override
                             public void onPressedYes(DialogInterface alertDialog) {
                                 if (NetworkChangeReceiver.isOnline(context)) {
-                                    final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-                                    progressDialog.setCancelable(false);
-                                    progressDialog.show();
+                                    Dialog progressDialog = CustomUtils.createProgressDialog(PostActivity.this);
+                                    IProgressBarTask progressBarTask = new IProgressBarTask() {
+                                        @Override
+                                        public void onStart() {
+                                            if (progressDialog != null && !progressDialog.isShowing()) {
+                                                progressDialog.show();
+                                                CustomUtils.toggleWindowInteraction(PostActivity.this, false);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+                                            if (progressDialog != null && progressDialog.isShowing()) {
+                                                progressDialog.dismiss();
+                                                CustomUtils.toggleWindowInteraction(PostActivity.this, true);
+                                            }
+                                        }
+                                    };
+                                    progressBarTask.onStart();
 
                                     db.collection("posts").document(post.id)
                                             .update("canDisplay", false)
@@ -714,7 +763,7 @@ public class PostActivity extends AppCompatActivity {
                                                                 .setTextColor(Color.WHITE)
                                                                 .show();
                                                     }
-                                                    progressDialog.dismiss();
+                                                    progressBarTask.onComplete();
                                                 }
                                             });
                                     alertDialog.dismiss();
@@ -825,9 +874,25 @@ public class PostActivity extends AppCompatActivity {
 
     private static void applyPostEdit(Context context, View view, String editTitle, String editBody, Post post, IEditDialogTask editDialogTask, IEditDialogTask alertDismissTask) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        Dialog progressDialog = CustomUtils.createProgressDialog(context);
+        IProgressBarTask progressBarTask = new IProgressBarTask() {
+            @Override
+            public void onStart() {
+                if (progressDialog != null && !progressDialog.isShowing()) {
+                    progressDialog.show();
+                    CustomUtils.toggleWindowInteraction((Activity) context, false);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                    CustomUtils.toggleWindowInteraction((Activity) context, true);
+                }
+            }
+        };
+        progressBarTask.onStart();
         Map<String, Object> updateValues = new HashMap<>();
         updateValues.put("postTitle", editTitle);
         updateValues.put("postBody", editBody);
@@ -847,16 +912,32 @@ public class PostActivity extends AppCompatActivity {
                                     .setTextColor(Color.WHITE)
                                     .show();
                         }
-                        progressDialog.dismiss();
+                        progressBarTask.onComplete();
                     }
                 });
     }
 
     private static void applyReplyEdit(Context context, View view, String editBody, Reply reply, IEditDialogTask editDialogTask, IEditDialogTask alertDismissTask) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        Dialog progressDialog = CustomUtils.createProgressDialog((Activity) context);
+        IProgressBarTask progressBarTask = new IProgressBarTask() {
+            @Override
+            public void onStart() {
+                if (progressDialog != null && !progressDialog.isShowing()) {
+                    progressDialog.show();
+                    CustomUtils.toggleWindowInteraction((Activity) context, false);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                    CustomUtils.toggleWindowInteraction((Activity) context, true);
+                }
+            }
+        };
+        progressBarTask.onStart();
         Map<String, Object> updateValues = new HashMap<>();
         updateValues.put("replyBody", editBody);
         updateValues.put("lastTimestamp", FieldValue.serverTimestamp());
@@ -876,7 +957,7 @@ public class PostActivity extends AppCompatActivity {
                                     .setTextColor(Color.WHITE)
                                     .show();
                         }
-                        progressDialog.dismiss();
+                        progressBarTask.onComplete();
                     }
                 });
     }
