@@ -140,24 +140,45 @@
                     android:textAlignment="textStart"
                     android:textColor="@color/black"
                     android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@id/post_img"
+                    app:layout_constraintBottom_toTopOf="@id/rl_post_img"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/input_title" />
 
-                <ImageView
-                    android:id="@+id/post_img"
+                <RelativeLayout
+                    android:id="@+id/rl_post_img"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxHeight="500dp"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="5dp"
-                    android:scaleType="fitCenter"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/input_body" />
+                    app:layout_constraintTop_toBottomOf="@+id/input_body">
+
+                    <ImageView
+                        android:id="@+id/post_img"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxHeight="400dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="5dp"
+                        android:scaleType="fitCenter" />
+
+                    <ImageView
+                        android:id="@+id/post_img_close"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="@drawable/bg_close_button"
+                        android:clickable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/icon_close"
+                        app:tint="@color/white" />
+
+                </RelativeLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

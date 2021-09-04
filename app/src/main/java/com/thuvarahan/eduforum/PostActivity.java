@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -104,7 +105,9 @@ public class PostActivity extends AppCompatActivity {
     private ImageView image;
     private TextView replies_count;
     private EditText etReplyBody;
+    private RelativeLayout rlReplyImage;
     private ImageView ivReplyImage;
+    private ImageView ivReplyImageClose;
     private AppCompatButton btnAddReply;
     private Button btnOptions;
     SwipeRefreshLayout swipeRefresh;
@@ -133,7 +136,9 @@ public class PostActivity extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.post_img);
         replies_count = (TextView) findViewById(R.id.post_replies_count);
         etReplyBody = (EditText) findViewById(R.id.add_reply_body);
+        rlReplyImage = (RelativeLayout) findViewById(R.id.rl_add_reply_image);
         ivReplyImage = (ImageView) findViewById(R.id.add_reply_image);
+        ivReplyImageClose = (ImageView) findViewById(R.id.add_reply_image_close);
         btnAddReply = (AppCompatButton) findViewById(R.id.add_reply_btn);
         btnOptions = (Button) findViewById(R.id.post_options);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_2);
@@ -270,12 +275,11 @@ public class PostActivity extends AppCompatActivity {
                 }
             });
 
-            ivReplyImage.setOnLongClickListener(new View.OnLongClickListener() {
+            ivReplyImageClose.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View v) {
+                public void onClick(View v) {
                     ivReplyImage.setImageDrawable(null);
-                    ivReplyImage.setVisibility(View.GONE);
-                    return true;
+                    rlReplyImage.setVisibility(View.GONE);
                 }
             });
 
@@ -518,7 +522,7 @@ public class PostActivity extends AppCompatActivity {
                                 });
                             }
                             ivReplyImage.setImageBitmap(null);
-                            ivReplyImage.setVisibility(View.GONE);
+                            rlReplyImage.setVisibility(View.GONE);
                             progressBarTask.onComplete();
                             fetchReplies(getApplicationContext(), db, postID);
                         }
@@ -664,7 +668,7 @@ public class PostActivity extends AppCompatActivity {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
                         ivReplyImage.setImageBitmap(bitmap);
-                        ivReplyImage.setVisibility(View.VISIBLE);
+                        rlReplyImage.setVisibility(View.VISIBLE);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();

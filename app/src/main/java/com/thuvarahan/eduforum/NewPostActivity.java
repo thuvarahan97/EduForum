@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +58,9 @@ public class NewPostActivity extends AppCompatActivity {
 
     EditText title;
     EditText body;
+    RelativeLayout rlImage;
     ImageView image;
+    ImageView imageClose;
     AppCompatButton btnChoose;
     AppCompatButton btnAddPost;
 
@@ -93,7 +96,9 @@ public class NewPostActivity extends AppCompatActivity {
 
         title = findViewById(R.id.input_title);
         body = findViewById(R.id.input_body);
+        rlImage = findViewById(R.id.rl_post_img);
         image = findViewById(R.id.post_img);
+        imageClose = findViewById(R.id.post_img_close);
         btnChoose = findViewById(R.id.choose_image_btn);
         btnAddPost = findViewById(R.id.add_post_btn);
 
@@ -127,12 +132,11 @@ public class NewPostActivity extends AppCompatActivity {
             }
         });
 
-        image.setOnLongClickListener(new View.OnLongClickListener() {
+        imageClose.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 image.setImageDrawable(null);
-                image.setVisibility(View.GONE);
-                return true;
+                rlImage.setVisibility(View.GONE);
             }
         });
 
@@ -409,7 +413,7 @@ public class NewPostActivity extends AppCompatActivity {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(imagePath));
                         image.setImageBitmap(bitmap);
-                        image.setVisibility(View.VISIBLE);
+                        rlImage.setVisibility(View.VISIBLE);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.failed_to_load_image), Toast.LENGTH_LONG).show();

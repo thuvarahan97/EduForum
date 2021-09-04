@@ -174,6 +174,7 @@ public class LoginDataSource {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.i(TAG, "signOut_HwId: success");
+                cancelAuthHwId();
             }
         }).addOnFailureListener(new com.huawei.hmf.tasks.OnFailureListener() {
             @Override
