@@ -1,6 +1,7 @@
 package com.thuvarahan.eduforum;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +39,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
+import com.thuvarahan.eduforum.interfaces.IProgressBarTask;
 import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -218,9 +221,25 @@ public class NewPostActivity extends AppCompatActivity {
 
     void savePost(String imageUrl) {
         if (NetworkChangeReceiver.isOnline(NewPostActivity.this)) {
-            final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialogSpinnerOnly);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            Dialog progressDialog = CustomUtils.createProgressDialog(NewPostActivity.this);
+            IProgressBarTask progressBarTask = new IProgressBarTask() {
+                @Override
+                public void onStart() {
+                    if (progressDialog != null && !progressDialog.isShowing()) {
+                        progressDialog.show();
+                        CustomUtils.toggleWindowInteraction(NewPostActivity.this, false);
+                    }
+                }
+
+                @Override
+                public void onComplete() {
+                    if (progressDialog != null && progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                        CustomUtils.toggleWindowInteraction(NewPostActivity.this, true);
+                    }
+                }
+            };
+            progressBarTask.onStart();
 
             DocumentReference author = db.collection("users").document(currentUserID);
 
@@ -246,7 +265,7 @@ public class NewPostActivity extends AppCompatActivity {
                         public void onSuccess(DocumentReference documentReference) {
                             Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
 
-                            progressDialog.dismiss();
+                            progressBarTask.onComplete();
 
                             Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.question_add_success), Toast.LENGTH_LONG);
                             toast.show();
@@ -259,7 +278,7 @@ public class NewPostActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
                             Log.w(TAG, "Error adding document", e);
 
-                            progressDialog.dismiss();
+                            progressBarTask.onComplete();
 
                             Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                                     .setBackgroundTint(Color.RED)
@@ -290,11 +309,25 @@ public class NewPostActivity extends AppCompatActivity {
 
     void uploadImage() {
         if (NetworkChangeReceiver.isOnline(NewPostActivity.this)) {
-            if (image.getDrawable() != null) {
-                final ProgressDialog progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
-                progressDialog.setTitle("Uploading Image...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+            if (image.getDrawable() != null) {Dialog progressDialog = CustomUtils.createProgressDialog(NewPostActivity.this);
+                IProgressBarTask progressBarTask = new IProgressBarTask() {
+                    @Override
+                    public void onStart() {
+                        if (progressDialog != null && !progressDialog.isShowing()) {
+                            progressDialog.show();
+                            CustomUtils.toggleWindowInteraction(NewPostActivity.this, false);
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            CustomUtils.toggleWindowInteraction(NewPostActivity.this, true);
+                        }
+                    }
+                };
+                progressBarTask.onStart();
 
                 Bitmap imageBitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -310,7 +343,7 @@ public class NewPostActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                             @Override
                                             public void onSuccess(Uri uri) {
-                                                progressDialog.dismiss();
+                                                progressBarTask.onComplete();
                                                 String imageUrl = uri.toString();
                                                 savePost(imageUrl);
                                             }
@@ -318,7 +351,7 @@ public class NewPostActivity extends AppCompatActivity {
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                progressDialog.dismiss();
+                                                progressBarTask.onComplete();
                                                 Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                                                         .setBackgroundTint(Color.RED)
                                                         .setTextColor(Color.WHITE)
@@ -330,7 +363,7 @@ public class NewPostActivity extends AppCompatActivity {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                progressDialog.dismiss();
+                                progressBarTask.onComplete();
                                 Snackbar.make(rootView, getResources().getString(R.string.question_add_failure), Snackbar.LENGTH_LONG)
                                         .setBackgroundTint(Color.RED)
                                         .setTextColor(Color.WHITE)
@@ -341,7 +374,6 @@ public class NewPostActivity extends AppCompatActivity {
                             @Override
                             public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
                                 double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                                progressDialog.setMessage((int) progress + "%" + " uploaded");
                             }
                         });
             }

@@ -629,7 +629,6 @@ public class PostActivity extends AppCompatActivity {
                             @Override
                             public void onProgress(@NotNull UploadTask.TaskSnapshot taskSnapshot) {
                                 double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                                progressBarTask.onComplete();
                             }
                         });
             }

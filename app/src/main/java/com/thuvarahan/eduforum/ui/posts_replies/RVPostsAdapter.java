@@ -2,7 +2,7 @@ package com.thuvarahan.eduforum.ui.posts_replies;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,7 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
-import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.PostActivity;
 import com.thuvarahan.eduforum.R;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
@@ -38,7 +37,9 @@ import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.post.Post;
 import com.thuvarahan.eduforum.interfaces.IAlertDialogTask;
 import com.thuvarahan.eduforum.interfaces.IEditDialogTask;
+import com.thuvarahan.eduforum.interfaces.IProgressBarTask;
 import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
+import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -283,9 +284,25 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                             public void onPressedYes(DialogInterface alertDialog) {
                                 View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
                                 if (NetworkChangeReceiver.isOnline(context)) {
-                                    final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-                                    progressDialog.setCancelable(false);
-                                    progressDialog.show();
+                                    Dialog progressDialog = CustomUtils.createProgressDialog((Activity) context);
+                                    IProgressBarTask progressBarTask = new IProgressBarTask() {
+                                        @Override
+                                        public void onStart() {
+                                            if (progressDialog != null && !progressDialog.isShowing()) {
+                                                progressDialog.show();
+                                                CustomUtils.toggleWindowInteraction((Activity) context, false);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+                                            if (progressDialog != null && progressDialog.isShowing()) {
+                                                progressDialog.dismiss();
+                                                CustomUtils.toggleWindowInteraction((Activity) context, true);
+                                            }
+                                        }
+                                    };
+                                    progressBarTask.onStart();
 
                                     db.collection("posts")
                                             .document(post.id)
@@ -302,7 +319,7 @@ public class RVPostsAdapter extends RecyclerView.Adapter<RVPostsAdapter.ViewHold
                                                                 .setTextColor(Color.WHITE)
                                                                 .show();
                                                     }
-                                                    progressDialog.dismiss();
+                                                    progressBarTask.onComplete();
                                                 }
                                             });
                                     alertDialog.dismiss();

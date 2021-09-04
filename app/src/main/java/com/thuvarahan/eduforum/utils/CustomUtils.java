@@ -288,17 +288,6 @@ public class CustomUtils {
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         return dialog;
-//        ProgressBar progressBar = new ProgressBar(context);
-//        WindowManager.LayoutParams wlmp = ((Activity) context).getWindow().getAttributes();
-//        wlmp.gravity = Gravity.CENTER;
-//        LinearLayout layout = new LinearLayout(context);
-//        layout.setOrientation(LinearLayout.VERTICAL);
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//        layout.addView(progressBar, params);
-//        Dialog alertDialog = new Dialog(context, R.style.TransparentProgressDialog);
-//        alertDialog.getWindow().setAttributes(wlmp);
-//        alertDialog.setContentView(layout, params);
-//        return alertDialog;
     }
 
     public static void toggleWindowInteraction(Activity activity, boolean canInteract) {

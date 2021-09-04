@@ -2,7 +2,7 @@ package com.thuvarahan.eduforum.ui.notifications;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -35,6 +35,7 @@ import com.thuvarahan.eduforum.data.login.LoginDataSource;
 import com.thuvarahan.eduforum.data.login.LoginRepository;
 import com.thuvarahan.eduforum.data.notification.Notification;
 import com.thuvarahan.eduforum.data.post.Post;
+import com.thuvarahan.eduforum.interfaces.IProgressBarTask;
 import com.thuvarahan.eduforum.utils.CustomUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -140,9 +141,25 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
         holder.notif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final ProgressDialog progressDialog = new ProgressDialog(view.getContext(), R.style.ProgressDialogSpinnerOnly);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                Dialog progressDialog = CustomUtils.createProgressDialog((Activity) view.getContext());
+                IProgressBarTask progressBarTask = new IProgressBarTask() {
+                    @Override
+                    public void onStart() {
+                        if (progressDialog != null && !progressDialog.isShowing()) {
+                            progressDialog.show();
+                            CustomUtils.toggleWindowInteraction((Activity) view.getContext(), false);
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            CustomUtils.toggleWindowInteraction((Activity) view.getContext(), true);
+                        }
+                    }
+                };
+                progressBarTask.onStart();
 
                 _notification.post.get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -151,7 +168,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot result = task.getResult();
                                     if (result != null && result.exists()) {
-                                        progressDialog.dismiss();
+                                        progressBarTask.onComplete();
                                         String id = _notification.post.getId();
                                         String title = Objects.requireNonNull(result.get("postTitle")).toString();
                                         String body = Objects.requireNonNull(result.get("postBody")).toString();
@@ -186,7 +203,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                         }
                                     }
                                 } else {
-                                    progressDialog.dismiss();
+                                    progressBarTask.onComplete();
                                 }
                             }
                         });
@@ -231,9 +248,25 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
 
                 View rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
 
-                final ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogSpinnerOnly);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                Dialog progressDialog = CustomUtils.createProgressDialog((Activity) context);
+                IProgressBarTask progressBarTask = new IProgressBarTask() {
+                    @Override
+                    public void onStart() {
+                        if (progressDialog != null && !progressDialog.isShowing()) {
+                            progressDialog.show();
+                            CustomUtils.toggleWindowInteraction((Activity) context, false);
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            CustomUtils.toggleWindowInteraction((Activity) context, true);
+                        }
+                    }
+                };
+                progressBarTask.onStart();
 
                 db.collection("users").document(currentUserID)
                         .collection("notifications").document(notification.id)
@@ -251,7 +284,7 @@ public class RVNotificationsAdapter extends RecyclerView.Adapter<RVNotifications
                                             .setTextColor(Color.WHITE)
                                             .show();
                                 }
-                                progressDialog.dismiss();
+                                progressBarTask.onComplete();
                             }
                         });
             }
