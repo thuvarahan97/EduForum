@@ -193,9 +193,9 @@ public class CustomUtils {
                                         @Override
                                         public void run() {
                                             if (isDownloaded) {
-                                                Toast.makeText(context.getApplicationContext(), "Download completed!" + ((filePath!=null)?" at "+filePath:""), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(context.getApplicationContext(), "Download completed!" + ((filePath!=null)?" at "+filePath:""), Toast.LENGTH_LONG).show();
                                             } else {
-                                                Toast.makeText(context.getApplicationContext(), "Download failed!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(context.getApplicationContext(), "Download failed!", Toast.LENGTH_LONG).show();
                                             }
                                         }
                                     });
