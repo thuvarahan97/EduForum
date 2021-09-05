@@ -24,6 +24,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.huawei.hms.support.hwid.ui.HuaweiIdAuthButton;
+import com.thuvarahan.eduforum.ForgotPasswordActivity;
 import com.thuvarahan.eduforum.utils.CustomUtils;
 import com.thuvarahan.eduforum.MainActivity;
 import com.thuvarahan.eduforum.R;
@@ -47,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
         final ConstraintLayout registerNav = findViewById(R.id.registerNav);
         final HuaweiIdAuthButton loginHwIdButton = findViewById(R.id.btnLoginHwId);
+        final ConstraintLayout forgotPasswordNav = findViewById(R.id.forgotPasswordNav);
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -145,6 +147,15 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 toggleProgressBar(loadingProgressBar, true);
                 loginViewModel.loginHwId(LoginActivity.this, loginHwIdActivityResult);
+            }
+        });
+
+        forgotPasswordNav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
     }

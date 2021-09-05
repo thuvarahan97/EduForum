@@ -27,14 +27,14 @@ import com.thuvarahan.eduforum.services.network_broadcast.NetworkChangeReceiver;
 import com.thuvarahan.eduforum.ui.login.LoginActivity;
 import com.thuvarahan.eduforum.utils.CustomUtils;
 
-public class ResetPasswordActivity extends AppCompatActivity {
+public class ForgotPasswordActivity extends AppCompatActivity {
 
     View rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reset_password);
+        setContentView(R.layout.activity_forgot_password);
         rootView = findViewById(android.R.id.content);
 
         EditText etUsername = findViewById(R.id.username);
@@ -64,11 +64,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 String username = etUsername.getText().toString().trim();
-                if (username != null && !username.isEmpty() && isUserNameValid(username)) {
-                    btnResetPassword.setEnabled(true);
-                } else {
-                    btnResetPassword.setEnabled(false);
-                }
+                btnResetPassword.setEnabled(username != null && !username.isEmpty() && isUserNameValid(username));
             }
         };
         etUsername.addTextChangedListener(afterTextChangedListener);
@@ -88,14 +84,14 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void sendEmail(String email) {
-        if (NetworkChangeReceiver.isOnline(ResetPasswordActivity.this)) {
-            Dialog progressDialog = CustomUtils.createProgressDialog(ResetPasswordActivity.this);
+        if (NetworkChangeReceiver.isOnline(ForgotPasswordActivity.this)) {
+            Dialog progressDialog = CustomUtils.createProgressDialog(ForgotPasswordActivity.this);
             IProgressBarTask progressBarTask = new IProgressBarTask() {
                 @Override
                 public void onStart() {
                     if (progressDialog != null && !progressDialog.isShowing()) {
                         progressDialog.show();
-                        CustomUtils.toggleWindowInteraction(ResetPasswordActivity.this, false);
+                        CustomUtils.toggleWindowInteraction(ForgotPasswordActivity.this, false);
                     }
                 }
 
@@ -103,7 +99,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                 public void onComplete() {
                     if (progressDialog != null && progressDialog.isShowing()) {
                         progressDialog.dismiss();
-                        CustomUtils.toggleWindowInteraction(ResetPasswordActivity.this, true);
+                        CustomUtils.toggleWindowInteraction(ForgotPasswordActivity.this, true);
                     }
                 }
             };
@@ -113,25 +109,25 @@ public class ResetPasswordActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(ResetPasswordActivity.this, "An email has been sent to reset your password.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(ForgotPasswordActivity.this, "An email has been sent to reset your password.", Toast.LENGTH_LONG).show();
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                                 finish();
                             } else {
-                                Toast.makeText(ResetPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ForgotPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
                             }
                             progressBarTask.onComplete();
                         }
                     }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
                 public void onCanceled() {
-                    Toast.makeText(ResetPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForgotPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
                     progressBarTask.onComplete();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(ResetPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForgotPasswordActivity.this, "Failed to reset password.", Toast.LENGTH_SHORT).show();
                     progressBarTask.onComplete();
                 }
             });
