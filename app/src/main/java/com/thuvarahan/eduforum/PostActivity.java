@@ -400,11 +400,12 @@ public class PostActivity extends AppCompatActivity {
 
     void showRecyclerView() {
         ArrayList<Reply> allreplies = this.replies;
+        String authorID = db.document(_post.authorRef).getId();
 
         // set up the RecyclerView
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_replies_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        rvAdapter = new RVRepliesAdapter(allreplies);
+        rvAdapter = new RVRepliesAdapter(allreplies, authorID);
         recyclerView.setAdapter(rvAdapter);
     }
 

@@ -49,13 +49,16 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
     private List<Reply> mData;
 
     String currentUserID = "";
+    String postAuthorID = "";
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     // data is passed into the constructor
-    public RVRepliesAdapter(List<Reply> data) {
+    public RVRepliesAdapter(List<Reply> data, String postAuthorID) {
         this.mData = data;
-
+        if (postAuthorID != null) {
+            this.postAuthorID = postAuthorID;
+        }
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
         if (loginRepository.getUser() != null) {
             currentUserID = loginRepository.getUser().getUserID();
@@ -138,7 +141,7 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
         }
 
         //---------------- Enable/Disable options --------------//
-        if (currentUserID.equals(_reply.author.getId())) {
+        if (currentUserID.equals(_reply.author.getId()) || currentUserID.equals(postAuthorID)) {
             holder.btnOptions.setEnabled(true);
             holder.btnOptions.setVisibility(View.VISIBLE);
         } else {
@@ -240,6 +243,9 @@ public class RVRepliesAdapter extends RecyclerView.Adapter<RVRepliesAdapter.View
 
         if (currentUserID.equals(replyAuthorRef.getId())) {
             edit.setVisibility(View.VISIBLE);
+            delete.setVisibility(View.VISIBLE);
+        } else if (currentUserID.equals(postAuthorID)) {
+            edit.setVisibility(View.GONE);
             delete.setVisibility(View.VISIBLE);
         } else {
             edit.setVisibility(View.GONE);

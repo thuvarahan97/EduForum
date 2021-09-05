@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.huawei.hms.mlsdk.common.MLApplication;
 import com.thuvarahan.eduforum.data.login.LoginDataSource;
@@ -38,7 +39,7 @@ public class SplashActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler((Looper.getMainLooper())).postDelayed(new Runnable() {
             @Override
             public void run() {
                 checkUserLoggedIn();
