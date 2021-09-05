@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -57,6 +60,7 @@ public class NotificationsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
+        setHasOptionsMenu(true);
 
         LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource());
         if (loginRepository.getUser() != null) {
@@ -164,5 +168,27 @@ public class NotificationsFragment extends Fragment {
             tvUnavailable.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            swipeRefresh.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (!swipeRefresh.isRefreshing()) {
+                        swipeRefresh.setRefreshing(true);
+                        fetchData(getContext(), db);
+                    }
+                }
+            });
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

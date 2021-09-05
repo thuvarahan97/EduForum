@@ -77,6 +77,7 @@
     <string name="cancel_authorization">Cancel Authorization</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="help">HELP</string>
+    <string name="refresh">REFRESH</string>
     <plurals name="input_empty">
         <item quantity="one">Input field should not be empty.</item>
         <item quantity="other">Input fields should not be empty.</item>

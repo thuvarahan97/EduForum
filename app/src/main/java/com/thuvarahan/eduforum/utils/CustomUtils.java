@@ -14,6 +14,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -180,18 +182,33 @@ public class CustomUtils {
             positiveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String fileName = imgUrl.getPath().substring(imgUrl.getPath().lastIndexOf('/') + 1);
-                    downloadFile(context, imgUrl.toString(), fileName, new IDownloadTask() {
-                        @Override
-                        public void onFinished(boolean isDownloaded) {
-                            if (isDownloaded) {
-                                Toast.makeText(context, "Download completed!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(context, "Download failed!", Toast.LENGTH_SHORT).show();
+                    try {
+                        String fileName = imgUrl.getPath().substring(imgUrl.getPath().lastIndexOf('/') + 1);
+                        downloadFile(context, imgUrl.toString(), fileName, new IDownloadTask() {
+                            @Override
+                            public void onFinished(boolean isDownloaded, String filePath) {
+                                try {
+                                    Handler handler = new Handler(Looper.getMainLooper());
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (isDownloaded) {
+                                                Toast.makeText(context.getApplicationContext(), "Download completed!" + ((filePath!=null)?" at "+filePath:""), Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(context.getApplicationContext(), "Download failed!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }
-                    });
-                    alertDialog.dismiss();
+                        });
+                        alertDialog.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        alertDialog.dismiss();
+                    }
                 }
             });
         }
@@ -254,7 +271,7 @@ public class CustomUtils {
                         filePath = response.getContent().getAbsolutePath();
                     }
                     Log.i(TAG, "onSuccess:" + filePath);
-                    downloadTask.onFinished(true);
+                    downloadTask.onFinished(true, filePath);
                 }
 
                 @Override
@@ -267,14 +284,14 @@ public class CustomUtils {
                         String errorMsg = "onException for:" + request.getId() + " " + Log.getStackTraceString(exception);
                         Log.e(TAG, errorMsg);
                     }
-                    downloadTask.onFinished(false);
+                    downloadTask.onFinished(false, null);
                 }
             };
             Result result = downloadManager.start(getRequest, callback);
             if (result.getCode() != Result.SUCCESS) {
                 // If the result is Result.SUCCESS, file download starts successfully. Otherwise, file download fails to be started.
                 Log.e(TAG, "start download task failed:" + result.getMessage());
-                downloadTask.onFinished(false);
+                downloadTask.onFinished(false, null);
             }
         }
     }

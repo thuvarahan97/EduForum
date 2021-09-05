@@ -2,9 +2,13 @@ package com.thuvarahan.eduforum.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -53,6 +57,7 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
+        setHasOptionsMenu(true);
         /*homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         final TextView textView = root.findViewById(R.id.text_home);
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -181,5 +186,27 @@ public class HomeFragment extends Fragment {
             tvUnavailable.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            swipeRefresh.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (!swipeRefresh.isRefreshing()) {
+                        swipeRefresh.setRefreshing(true);
+                        fetchData(getContext(), db);
+                    }
+                }
+            });
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
