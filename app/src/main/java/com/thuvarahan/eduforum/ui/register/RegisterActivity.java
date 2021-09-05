@@ -84,8 +84,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                     setResult(Activity.RESULT_OK);
 
-                    //Complete and destroy login activity once successful
-                    finish();
+                    //Complete and destroy register activity once successful
+                    onBackPressed();
                 }
             }
         });
